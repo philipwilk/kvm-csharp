@@ -7,8 +7,8 @@ namespace Main
     public static void Main()
     {
       // import ioctl function
-      // remember to add the build dirs to the LD_LIBRARY_PATH envvar format LD_LIBRARY_PATH=():():()
-      // OR add libs to /usr/local/lib64
+      // remember to add the build dir to the LD_LIBRARY_PATH envvar format LD_LIBRARY_PATH=(whereever)/ioctls/build
+      // OR add lib to /usr/local/lib64
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
       static extern int KVM_GET_API_VERSION(int fd);
 
