@@ -7,16 +7,18 @@ namespace Main
     public static void Main()
     {
       // import ioctl function
-      [DllImport("KVM_GET_API_VERSION.so", SetLastError = true)]
-      extern static int KVM_GET_API_VERSION(int fd);
-      //[DllImport("libc", EntryPoint = "ioctl", SetLastError = true)]
-      //extern static int KernelIoCtrl(int fd, int request, IntPtr data);
+      // remember to add the build dirs to the LD_LIBRARY_PATH envvar format LD_LIBRARY_PATH=():():()
+      // OR add libs to /usr/local/lib64
+      [DllImport("KVM_IOCTLS.so", SetLastError = true)]
+      static extern int KVM_GET_API_VERSION(int fd);
 
       // get kvm fd
       int fileDescriptor = Mono.Unix.Native.Syscall.open("/dev/kvm", Mono.Unix.Native.OpenFlags.O_RDWR);
 
       // Get result of function
       int result = KVM_GET_API_VERSION(fileDescriptor);
+
+      Console.WriteLine("Is kvm basic compliant: {0}", result == 12);
     }
   }
 }

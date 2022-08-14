@@ -4,13 +4,9 @@
 #include <fcntl.h>
 
 #include "../consts.h"
+#include "./KVM_GET_API_VERSION.h"
 
-int main()
-{
-  return 0;
-}
-
-int KVM_GET_API_VESION(int fd)
+int KVM_GET_API_VERSION(int fd)
 {
   __u_long req = _IO(KVM_ID, KVM_GET_API_VERSION_seq);
   return ioctl(fd, req, 0);
