@@ -15,9 +15,9 @@ namespace Main
       Debug = 7
     }
 
-    public static List<(logging.Severity, String, String)> get_pre_flight_checks()
+    public static List<log> get_pre_flight_checks()
     {
-      List<(logging.Severity level, String id, String desc)> results = new List<(logging.Severity level, string id, string desc)>();
+      List<log> results = new List<log>();
 
       // open kvm fd
       int fd = Mono.Unix.Native.Syscall.open("/dev/kvm", Mono.Unix.Native.OpenFlags.O_RDWR);
@@ -27,13 +27,13 @@ namespace Main
       return results;
     }
 
-    public static List<(logging.Severity level, String id, String desc)> parse_pre_flight_checks(List<(logging.Severity level, String id, String desc)> pfcs, logging.Severity level, List<String> modifiers)
+    public static List<log> parse_pre_flight_checks(List<log> pfcs, logging.Severity level, List<String> modifiers)
     {
-      List<(logging.Severity level, String id, String desc)> notices = new List<(logging.Severity level, String id, String desc)>();
-      foreach ((logging.Severity level, String id, String desc) pfc in pfcs)
+      List<log> notices = new List<log>();
+      foreach (log pfc in pfcs)
       {
         // Only add tuple to notice if level <= the desired level and isnt being manually filtered out
-        if (pfc.level <= level && !(modifiers.Contains("-" + pfc.id)) && !(modifiers.Contains("-all") && !(modifiers.Contains("+" + pfc.id))))
+        if (pfc.get_level() <= level && !(modifiers.Contains("-" + pfc.get_id())) && !(modifiers.Contains("-all") && !(modifiers.Contains("+" + pfc.get_id()))))
         {
           notices.Add(pfc);
         }
@@ -42,9 +42,36 @@ namespace Main
     }
   }
 
-  class pfcs
+// log class, each log is an instance of this class
+  class log {
+    private logging.Severity level;
+    private String id, desc;
+
+    public log(logging.Severity _level, String _id, String _desc) {
+      level = _level;
+      id = _id;
+      desc = _desc;
+    }
+
+    public logging.Severity get_level()
+    {
+      return level;
+    }
+
+    public String get_id()
+    {
+      return id;
+    }
+
+    public String get_desc()
+    {
+      return desc;
+    }
+  }
+
+class pfcs
   {
-    public static (logging.Severity level, String id, String desc) has_valid_kvm_extension(int fd)
+    public static log has_valid_kvm_extension(int fd)
     {
       // import ioctl function
       // remember to add the build dir to the LD_LIBRARY_PATH envvar format LD_LIBRARY_PATH=(whereever)/ioctls/build
@@ -53,9 +80,9 @@ namespace Main
       static extern int KVM_GET_API_VERSION(int fd);
       if (KVM_GET_API_VERSION(fd) == 12)
       {
-        return (logging.Severity.Info, "has_kvm_api", "Basic kvm api found");
+        return new log(logging.Severity.Info, "has_kvm_api", "Basic kvm api found");
       }
-      else return (logging.Severity.Emerg, "has_kvm_api", "Failed to get basic kvm api");
+      else return new log(logging.Severity.Emerg, "has_kvm_api", "Failed to get basic kvm api");
     }
   }
 
@@ -63,17 +90,17 @@ namespace Main
   {
     public static void Main()
     {
-      List<(logging.Severity level, String id, String desc)> pfcs = logging.get_pre_flight_checks();
-      List<(logging.Severity level, String id, String desc)> notices = logging.parse_pre_flight_checks(pfcs, logging.Severity.Info, new List<String>());
+      List<log> pfcs = logging.get_pre_flight_checks();
+      List<log> notices = logging.parse_pre_flight_checks(pfcs, logging.Severity.Info, new List<String>());
       if (notices.Count == 0)
       {
         Console.WriteLine("No notices from pfcs to display");
       }
       else
       {
-        foreach ((logging.Severity level, String id, String desc) i in notices)
+        foreach (log i in notices)
         {
-          Console.WriteLine("{0}, {1}", i.desc, i.id);
+          Console.WriteLine("{0}, {1}", i.get_desc(), i.get_id());
         }
       }
     }
