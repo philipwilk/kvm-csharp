@@ -1,0 +1,1 @@
+needs `export LD_LIBRARY_PATH=~/Documents/kvm-csharp/ioctls/build/` to run (where ~/Documents/ is the repo dir path)
