@@ -27,7 +27,7 @@ namespace Main
       return results;
     }
 
-    public static List<log> parse_pre_flight_checks(List<log> pfcs, logging.Severity level, List<String> modifiers)
+    public static List<log> parse_by_severity(List<log> pfcs, logging.Severity level, List<String> modifiers)
     {
       List<log> notices = new List<log>();
       foreach (log pfc in pfcs)
@@ -42,12 +42,14 @@ namespace Main
     }
   }
 
-// log class, each log is an instance of this class
-  class log {
+  // log class, each log is an instance of this class
+  class log
+  {
     private logging.Severity level;
     private String id, desc;
 
-    public log(logging.Severity _level, String _id, String _desc) {
+    public log(logging.Severity _level, String _id, String _desc)
+    {
       level = _level;
       id = _id;
       desc = _desc;
@@ -69,9 +71,9 @@ namespace Main
     }
   }
 
-class pfcs
+  class pfcs
   {
-    public static log has_valid_kvm_extension(int fd)
+  public static log has_valid_kvm_extension(int fd)
     {
       // import ioctl function
       // remember to add the build dir to the LD_LIBRARY_PATH envvar format LD_LIBRARY_PATH=(whereever)/ioctls/build
@@ -91,7 +93,7 @@ class pfcs
     public static void Main()
     {
       List<log> pfcs = logging.get_pre_flight_checks();
-      List<log> notices = logging.parse_pre_flight_checks(pfcs, logging.Severity.Info, new List<String>());
+      List<log> notices = logging.parse_by_severity(pfcs, logging.Severity.Info, new List<String>());
       if (notices.Count == 0)
       {
         Console.WriteLine("No notices from pfcs to display");
