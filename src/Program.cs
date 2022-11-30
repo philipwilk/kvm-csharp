@@ -3,8 +3,13 @@
 
   class kvm
   {
-    public static void Main()
+    public static void Main(string[] args)
     {
+      var parameters = param.get_parameters(args);
+      foreach (var item in parameters)
+      {
+        Console.WriteLine(item);
+      }
       List<String> modifiers = new List<String>();
       List<log> notices = logging.get_parsed_preflights(log.Severity.Info, modifiers);
       if (notices.Count == 0)
