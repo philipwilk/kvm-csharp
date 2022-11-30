@@ -26,9 +26,9 @@ namespace Main
       return notices;
     }
 
-    public static List<log> get_parsed_preflights(log.Severity level, List<String> modifiers, int kvm_fd)
+    public static List<log> get_parsed_preflights(log.Severity level, List<String> modifiers)
     {
-      return parse_logs_by_severity(get_preflights(kvm_fd), level, modifiers);
+      return parse_logs_by_severity(get_preflights(kvm.get_kvm_fd()), level, modifiers);
     }
   }
 }

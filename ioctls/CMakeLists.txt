@@ -2,13 +2,13 @@
 cmake_minimum_required(VERSION 3.22)
 
 # Specify the project info.
-project(KVM_IOCTLS VERSION 0.1.0 DESCRIPTION "Shared library for calling KVM ioctls from not C")
+project(KVM_IOCTLS VERSION 0.1.0 DESCRIPTION "Shared library for calling KVM ioctls from csharp")
 
 #[[ Declare the library targets
  add c source and header for each function]]
 add_library(${PROJECT_NAME} SHARED
-    KVM_GET_API_VERSION/KVM_GET_API_VERSION.c
-    KVM_GET_API_VERSION/KVM_GET_API_VERSION.h
+    ioctls.c
+    ioctls.h
 )
 
 # Configure the directories to search for header files.
@@ -22,7 +22,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${PROJECT_VERSION_MAJ
 
 #[[ Set the public header property to the one with the actual API.
  For multiple, list like, "DIR;DIR;DIR;DIR;"]]
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "KVM_GET_API_VERSION.h;")
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "ioctls.h;")
 
 #[[  --- How do build ---  
 

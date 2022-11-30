@@ -1,1 +1,0 @@
-int KVM_GET_API_VERSION(int fd);

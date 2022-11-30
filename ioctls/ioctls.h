@@ -16,3 +16,7 @@ struct kvm_userspace_memory_region
   unsigned long memory_size;
   unsigned long userspace_addr;
 };
+
+int KVM_CREATE_VM(int fd);
+int KVM_GET_API_VERSION(int fd);
+int KVM_SET_USER_MEMORY_REGION(int fd, struct kvm_userspace_memory_region);
