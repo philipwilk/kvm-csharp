@@ -31,4 +31,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "ioctls.h;")
   cmake ..
   make all
 
+  OR to redo quickly when writing csharp:
+  (cd ioctls/build/; cmake .. && make all)
+
   done]]
