@@ -1,7 +1,7 @@
 ﻿namespace Main
 {
 
-  class kvm
+  class program
   {
     public static void Main(string[] args)
     {
@@ -11,7 +11,7 @@
         Console.WriteLine(item);
       }
       List<String> modifiers = new List<String>();
-      List<log> notices = logging.get_parsed_preflights(log.Severity.Info, modifiers);
+      List<log> notices = logging.get_parsed_preflights(log.Severity.Info, modifiers, kvm.get_kvm_fd());
       if (notices.Count == 0)
       {
         Console.WriteLine("No notices from pfcs to display");

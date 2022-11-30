@@ -2,14 +2,12 @@ namespace Main
 {
   class logging
   {
-    static List<log> get_preflights()
+    static List<log> get_preflights(int kvm_fd)
     {
       List<log> results = new List<log>();
 
-      // open kvm fd
-      int fd = Mono.Unix.Native.Syscall.open("/dev/kvm", Mono.Unix.Native.OpenFlags.O_RDWR);
       // Check for kvm basic api presence
-      results.Add(preFlights.has_kvm_extension(fd));
+      results.Add(preFlights.has_kvm_extension(kvm_fd));
 
       return results;
     }
@@ -28,9 +26,9 @@ namespace Main
       return notices;
     }
 
-    public static List<log> get_parsed_preflights(log.Severity level, List<String> modifiers)
+    public static List<log> get_parsed_preflights(log.Severity level, List<String> modifiers, int kvm_fd)
     {
-      return parse_logs_by_severity(get_preflights(), level, modifiers);
+      return parse_logs_by_severity(get_preflights(kvm_fd), level, modifiers);
     }
   }
 }
