@@ -12,9 +12,9 @@ struct kvm_userspace_memory_region
 {
   unsigned int slot;
   unsigned int flags;
-  unsigned long guest_phys_address;
-  unsigned long memory_size;
-  unsigned long userspace_addr;
+  unsigned long long guest_phys_addr;
+  unsigned long long memory_size;    /* bytes */
+  unsigned long long userspace_addr; /* start of the userspace allocated memory */
 };
 
 int KVM_CREATE_VM(int fd);

@@ -6,19 +6,19 @@ namespace Main
   {
     public struct KvmUserspaceMemoryRegion
     {
-      public KvmUserspaceMemoryRegion(uint _slot, uint _flags, ulong _guest_phys_address, ulong _memory_size, IntPtr _userspace_address)
+      public KvmUserspaceMemoryRegion(uint _slot, uint _flags, ulong _guest_phys_addr, ulong _memory_size, IntPtr _userspace_addr)
       {
         slot = _slot;
         flags = _flags;
-        guest_phys_address = _guest_phys_address;
+        guest_phys_addr = _guest_phys_addr;
         memory_size = _memory_size;
-        userspace_address = _userspace_address;
+        userspace_addr = _userspace_addr;
       }
-      public uint slot { get; }
-      public uint flags { get; }
-      public ulong guest_phys_address { get; }
-      public ulong memory_size { get; }
-      public IntPtr userspace_address { get; }
+      public uint slot;
+      public uint flags;
+      public ulong guest_phys_addr;
+      public ulong memory_size;
+      public IntPtr userspace_addr;
     }
 
     public static int get_kvm_fd()
@@ -29,7 +29,7 @@ namespace Main
     public static int get_basic_api_ver(int fd)
     {
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
-      static extern int KVM_GET_API_VERSION(int fd);
+      static extern int KVM_GET_API_VERSION(int kvm_file_descriptor);
       return KVM_GET_API_VERSION(fd);
     }
     private static kvm.KvmUserspaceMemoryRegion define_memory_region(nuint capacity)
@@ -41,15 +41,15 @@ namespace Main
       return new kvm.KvmUserspaceMemoryRegion(0, 0, 0, capacity, mem);
     }
 
-    public static void create_vm(int fd, nuint capacity)
+    public static void create_vm(int kvm_fd, nuint capacity)
     {
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
-      static extern int KVM_CREATE_VM(int fd);
-      int ret_createvm = KVM_CREATE_VM(fd);
+      static extern int KVM_CREATE_VM(int kvm_fd);
+      int vm_fd = KVM_CREATE_VM(kvm_fd);
       kvm.KvmUserspaceMemoryRegion ram_region = define_memory_region(capacity);
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
-      static extern int KVM_SET_USER_MEMORY_REGION(int fd, kvm.KvmUserspaceMemoryRegion region);
-      int ret_region = KVM_SET_USER_MEMORY_REGION(fd, ram_region);
+      static extern int KVM_SET_USER_MEMORY_REGION(int vm_fd, kvm.KvmUserspaceMemoryRegion region);
+      int ret_region = KVM_SET_USER_MEMORY_REGION(vm_fd, ram_region);
       Console.WriteLine(ret_region);
     }
   }
