@@ -22,3 +22,15 @@ int KVM_SET_USER_MEMORY_REGION(int fd, struct kvm_userspace_memory_region region
   __u_long req = _IOW(KVM_ID, KVM_SET_USER_MEMORY_REGION_seq, struct kvm_userspace_memory_region);
   return ioctl(fd, req, &region);
 }
+
+unsigned int KVM_CHECK_EXTENSION(int fd, int extension_identifier)
+{
+  __u_long req = _IO(KVM_ID, KVM_CHECK_EXTENSION_seq);
+  return ioctl(fd, req, extension_identifier);
+}
+
+int KVM_CREATE_VCPU(int fd, unsigned int vcpu_id)
+{
+  __u_long req = _IO(KVM_ID, KVM_CREATE_VCPU_seq);
+  return ioctl(fd, req, vcpu_id);
+}

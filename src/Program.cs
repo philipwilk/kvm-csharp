@@ -24,7 +24,7 @@
         }
       }
 
-      kvm.create_vm(kvm.get_kvm_fd(), 0x10000);
+      kvm.create_vm(kvm.get_kvm_fd(), 0x10000, 2);
     }
   }
 }

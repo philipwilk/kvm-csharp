@@ -5,6 +5,8 @@ const int KVM_ID = 0xAE;
 // sequence numbers
 const int KVM_GET_API_VERSION_seq = 0x00;
 const int KVM_CREATE_VM_seq = 0x01;
+const int KVM_CHECK_EXTENSION_seq = 0x03;
+const int KVM_CREATE_VCPU_seq = 0x41;
 const int KVM_SET_USER_MEMORY_REGION_seq = 0x46;
 
 // Structs
@@ -20,3 +22,5 @@ struct kvm_userspace_memory_region
 int KVM_CREATE_VM(int fd);
 int KVM_GET_API_VERSION(int fd);
 int KVM_SET_USER_MEMORY_REGION(int fd, struct kvm_userspace_memory_region);
+unsigned int KVM_CHECK_EXTENSION(int fd, int extension_identifier);
+int KVM_CREATE_VCPU(int fd, unsigned int vcpu_id);
