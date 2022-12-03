@@ -34,3 +34,9 @@ int KVM_CREATE_VCPU(int fd, unsigned int vcpu_id)
   __u_long req = _IO(KVM_ID, KVM_CREATE_VCPU_seq);
   return ioctl(fd, req, vcpu_id);
 }
+
+int KVM_GET_SREGS(int vcpu, struct kvm_sregs sregs)
+{
+  __u_long req = _IOR(KVM_ID, KVM_GET_SREGS_seq, struct kvm_sregs);
+  return ioctl(vcpu, req, sregs);
+}

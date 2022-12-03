@@ -46,6 +46,7 @@ namespace Main
 
     public static void create_vm(int kvm_fd, nuint capacity, uint cores)
     {
+      // create vm fd
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
       static extern int KVM_CREATE_VM(int kvm_fd);
       int vm_fd = KVM_CREATE_VM(kvm_fd);
@@ -53,7 +54,9 @@ namespace Main
       {
         throw new vm_fd_not_created_Exception(vm_fd);
       }
+      // lock memory region
       kvm.KvmUserspaceMemoryRegion ram_region = define_memory_region(capacity);
+      // assign memory region to vm with fd from earlier
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
       static extern int KVM_SET_USER_MEMORY_REGION(int vm_fd, kvm.KvmUserspaceMemoryRegion region);
       int region_ret = KVM_SET_USER_MEMORY_REGION(vm_fd, ram_region);
@@ -61,6 +64,7 @@ namespace Main
       {
         throw new user_memory_region_not_set_Exception(capacity, vm_fd);
       }
+      // Create vcpus, store vcpu fds
       if (cores > get_max_cpus(kvm_fd))
       {
         throw new not_enough_logical_processors(cores, Environment.ProcessorCount);
@@ -80,6 +84,20 @@ namespace Main
           vcpus.Add(current_vcpu);
         }
       }
+      // Get special registers for vcpus
+      var sregs = new List<x86_64.KvmSregs> { };
+      [DllImport("KVM_IOCTLS.so", SetLastError = true)]
+      static extern int KVM_GET_SREGS(int vcpu_fd, IntPtr pointer);
+      for (int i = 0; i < vcpus.Count; i++)
+      {
+        x86_64.KvmSregs sreg;
+        IntPtr pnt = Marshal.AllocHGlobal(Marshal.SizeOf(sreg));
+        Marshal.StructureToPtr(sreg, pnt, false);
+        int get_sregs_res = KVM_GET_SREGS(vcpus[0], pnt);
+        sreg = (x86_64.KvmSregs)Marshal.PtrToStructure(pnt, typeof(x86_64.KvmSregs));
+        sregs.Add(sreg);
+      }
+
 
     }
 
@@ -105,5 +123,6 @@ namespace Main
       }
       return recommended_max_vcpus;
     }
+
   }
 }
