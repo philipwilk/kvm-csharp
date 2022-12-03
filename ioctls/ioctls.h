@@ -8,6 +8,10 @@ const int KVM_CREATE_VM_seq = 0x01;
 const int KVM_CHECK_EXTENSION_seq = 0x03;
 const int KVM_CREATE_VCPU_seq = 0x41;
 const int KVM_SET_USER_MEMORY_REGION_seq = 0x46;
+const int KVM_SET_TSS_ADDR_seq = 0x47;
+const int KVM_SET_IDENTITY_MAP_ADDR_seq = 0x48;
+const int KVM_CREATE_IRQCHIP_seq = 0x60;
+const int KVM_CREATE_PIT2_seq = 0x77;
 const int KVM_SET_REGS_seq = 0x82;
 const int KVM_GET_SREGS_seq = 0x83;
 const int KVM_SET_SREGS_seq = 0x84;
@@ -73,6 +77,12 @@ struct kvm_regs
   unsigned long rflags;
 };
 
+struct kvm_pit_config
+{
+  unsigned int flags;
+  unsigned int pad[15];
+};
+
 int KVM_CREATE_VM(int fd);
 int KVM_GET_API_VERSION(int fd);
 int KVM_SET_USER_MEMORY_REGION(int fd, struct kvm_userspace_memory_region);
@@ -80,3 +90,7 @@ unsigned int KVM_CHECK_EXTENSION(int fd, int extension_identifier);
 int KVM_CREATE_VCPU(int fd, unsigned int vcpu_id);
 int KVM_GET_and_SET_SREGS(int vcpu, short arm64);
 int KVM_SET_REGS(int vcpu);
+int KVM_SET_TSS_ADDR(int vm_fd);
+int KVM_SET_IDENTITY_MAP_ADDR(int vm_fd);
+int KVM_CREATE_IRQCHIP(int vm_fd);
+int KVM_CREATE_PIT2(int vm_fd);

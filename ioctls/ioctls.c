@@ -95,3 +95,30 @@ int KVM_SET_REGS(int vcpu)
   __u_long req = _IOW(KVM_ID, KVM_SET_REGS_seq, struct kvm_regs);
   return ioctl(vcpu, req, &regs);
 }
+
+int KVM_SET_TSS_ADDR(int vm_fd)
+{
+  __u_long req = _IO(KVM_ID, KVM_SET_TSS_ADDR_seq);
+  return ioctl(vm_fd, req, 0xfffbc000 + 0x1000); // numbers from qemu implementation
+}
+
+int KVM_SET_IDENTITY_MAP_ADDR(int vm_fd)
+{
+  __u_long req = _IOW(KVM_ID, KVM_SET_IDENTITY_MAP_ADDR_seq, unsigned long);
+  unsigned long identity_base = 0xfeffc000;
+  return ioctl(vm_fd, req, &identity_base);
+}
+
+int KVM_CREATE_IRQCHIP(int vm_fd)
+{
+  __u_long req = _IO(KVM_ID, KVM_CREATE_IRQCHIP_seq);
+  return ioctl(vm_fd, req, 0);
+}
+
+int KVM_CREATE_PIT2(int vm_fd)
+{
+  __u_long req = _IOW(KVM_ID, KVM_CREATE_PIT2_seq, struct kvm_pit_config);
+  struct kvm_pit_config pit;
+  pit.flags = 0;
+  return ioctl(vm_fd, req, &pit);
+}

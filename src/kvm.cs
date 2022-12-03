@@ -46,13 +46,14 @@ namespace Main
 
     public static void create_vm(int kvm_fd, nuint capacity, uint cores)
     {
+      int res;
       // create vm fd
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
       static extern int KVM_CREATE_VM(int kvm_fd);
       int vm_fd = KVM_CREATE_VM(kvm_fd);
       if (vm_fd < 0)
       {
-        throw new vm_fd_not_created_Exception(vm_fd);
+        throw new vm_fd_not_created(vm_fd);
       }
       // lock memory region
       kvm.KvmUserspaceMemoryRegion ram_region = define_memory_region(capacity);
@@ -62,8 +63,46 @@ namespace Main
       int region_ret = KVM_SET_USER_MEMORY_REGION(vm_fd, ram_region);
       if (region_ret == -1)
       {
-        throw new user_memory_region_not_set_Exception(capacity, vm_fd);
+        throw new user_memory_region_not_set(capacity, vm_fd);
       }
+
+      /*
+        Assign addresses for devices for vm
+        has to happen before vcpus are made
+      */
+      // TSS
+      [DllImport("KVM_IOCTLS.so", SetLastError = true)]
+      static extern int KVM_SET_TSS_ADDR(int vm_fd);
+      res = KVM_SET_TSS_ADDR(vm_fd);
+      if (res == -1)
+      {
+        throw new failed_setting_tss_addr(vm_fd);
+      }
+      // identity map addr
+      [DllImport("KVM_IOCTLS.so", SetLastError = true)]
+      static extern int KVM_SET_IDENTITY_MAP_ADDR(int vm_fd);
+      res = KVM_SET_IDENTITY_MAP_ADDR(vm_fd);
+      if (res == -1)
+      {
+        throw new failed_setting_identity_map_addr(vm_fd);
+      }
+      // IRQ
+      [DllImport("KVM_IOCTLS.so", SetLastError = true)]
+      static extern int KVM_CREATE_IRQCHIP(int vm_fd);
+      res = KVM_CREATE_IRQCHIP(vm_fd);
+      if (res == -1)
+      {
+        throw new failed_creating_irqchip(vm_fd);
+      }
+      // create in-kernel i8254 PIT
+      [DllImport("KVM_IOCTLS.so", SetLastError = true)]
+      static extern int KVM_CREATE_PIT2(int vm_fd);
+      res = KVM_CREATE_PIT2(vm_fd);
+      if (res == -1)
+      {
+        throw new failed_creating_pit2(vm_fd);
+      }
+
       // Create vcpus, store vcpu fds
       if (cores > get_max_cpus(kvm_fd))
       {
@@ -93,7 +132,7 @@ namespace Main
       static extern int KVM_GET_and_SET_SREGS(int vcpu_fd, short is_arm64);
       for (uint i = 0; i < vcpus.Count; i++)
       {
-        int res = KVM_GET_and_SET_SREGS(vcpus[0], 0);
+        res = KVM_GET_and_SET_SREGS(vcpus[0], 0);
         if (res == -1)
         {
           throw new failed_setting_sregs(i, vm_fd);
@@ -104,12 +143,14 @@ namespace Main
       static extern int KVM_SET_REGS(int vcpu_fd);
       for (uint i = 0; i < vcpus.Count; i++)
       {
-        int res = KVM_SET_REGS(vcpus[0]);
+        res = KVM_SET_REGS(vcpus[0]);
         if (res == -1)
         {
           throw new failed_setting_sregs(i, vm_fd);
         }
       }
+
+
     }
 
     // Get max number of vcpus that can be created. limited by number of logical threads on host and kvm itself.
