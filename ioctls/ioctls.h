@@ -8,7 +8,9 @@ const int KVM_CREATE_VM_seq = 0x01;
 const int KVM_CHECK_EXTENSION_seq = 0x03;
 const int KVM_CREATE_VCPU_seq = 0x41;
 const int KVM_SET_USER_MEMORY_REGION_seq = 0x46;
+const int KVM_SET_REGS_seq = 0x82;
 const int KVM_GET_SREGS_seq = 0x83;
+const int KVM_SET_SREGS_seq = 0x84;
 
 // Structs
 struct kvm_userspace_memory_region
@@ -49,9 +51,32 @@ struct kvm_sregs
   unsigned long interrupt_bitmap[4];
 };
 
+struct kvm_regs
+{
+  unsigned long rax;
+  unsigned long rbx;
+  unsigned long rcx;
+  unsigned long rdx;
+  unsigned long rsi;
+  unsigned long rdi;
+  unsigned long rsp;
+  unsigned long rbp;
+  unsigned long r8;
+  unsigned long r9;
+  unsigned long r10;
+  unsigned long r11;
+  unsigned long r12;
+  unsigned long r13;
+  unsigned long r14;
+  unsigned long r15;
+  unsigned long rip;
+  unsigned long rflags;
+};
+
 int KVM_CREATE_VM(int fd);
 int KVM_GET_API_VERSION(int fd);
 int KVM_SET_USER_MEMORY_REGION(int fd, struct kvm_userspace_memory_region);
 unsigned int KVM_CHECK_EXTENSION(int fd, int extension_identifier);
 int KVM_CREATE_VCPU(int fd, unsigned int vcpu_id);
-int KVM_GET_SREGS(int vcpu, struct kvm_sregs sregs);
+int KVM_GET_and_SET_SREGS(int vcpu, short arm64);
+int KVM_SET_REGS(int vcpu);

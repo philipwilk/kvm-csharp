@@ -18,6 +18,15 @@ namespace Main
 
   public class failed_creating_vcpu : SystemException
   {
-    public failed_creating_vcpu(uint core, int vm_fd) : base(String.Format("Failed to create core {0} for vm with fd {1}", core, vm_fd)) { }
+    public failed_creating_vcpu(uint core, int vm_fd) : base(String.Format("Failed to create vcpu {0} for vm with fd {1}.", core, vm_fd)) { }
+  }
+
+  public class failed_setting_sregs : SystemException
+  {
+    public failed_setting_sregs(uint core, int vm_fd) : base(String.Format("Failed to set special registers for vcpu {0} for vm with fd {1}.", core.ToString(), vm_fd.ToString())) { }
+  }
+  public class failed_setting_regs : SystemException
+  {
+    public failed_setting_regs(uint core, int vm_fd) : base(String.Format("Failed to set registers for vcpu {0} for vm with fd {1}.", core.ToString(), vm_fd.ToString())) { }
   }
 }

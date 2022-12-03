@@ -84,21 +84,32 @@ namespace Main
           vcpus.Add(current_vcpu);
         }
       }
-      // Get special registers for vcpus
-      var sregs = new List<x86_64.KvmSregs> { };
+      // Get and set special registers for vcpus
+      /*
+        Cannot do this natively because csharp does not use separate types for arrays of different length, so the structs are diff from the c ones,
+        and csharp cannot get an address for the c to point to
+      */
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
-      static extern int KVM_GET_SREGS(int vcpu_fd, IntPtr pointer);
-      for (int i = 0; i < vcpus.Count; i++)
+      static extern int KVM_GET_and_SET_SREGS(int vcpu_fd, short is_arm64);
+      for (uint i = 0; i < vcpus.Count; i++)
       {
-        x86_64.KvmSregs sreg;
-        IntPtr pnt = Marshal.AllocHGlobal(Marshal.SizeOf(sreg));
-        Marshal.StructureToPtr(sreg, pnt, false);
-        int get_sregs_res = KVM_GET_SREGS(vcpus[0], pnt);
-        sreg = (x86_64.KvmSregs)Marshal.PtrToStructure(pnt, typeof(x86_64.KvmSregs));
-        sregs.Add(sreg);
+        int res = KVM_GET_and_SET_SREGS(vcpus[0], 0);
+        if (res == -1)
+        {
+          throw new failed_setting_sregs(i, vm_fd);
+        }
       }
-
-
+      // Set (normal) registers for vcpus
+      [DllImport("KVM_IOCTLS.so", SetLastError = true)]
+      static extern int KVM_SET_REGS(int vcpu_fd);
+      for (uint i = 0; i < vcpus.Count; i++)
+      {
+        int res = KVM_SET_REGS(vcpus[0]);
+        if (res == -1)
+        {
+          throw new failed_setting_sregs(i, vm_fd);
+        }
+      }
     }
 
     // Get max number of vcpus that can be created. limited by number of logical threads on host and kvm itself.
