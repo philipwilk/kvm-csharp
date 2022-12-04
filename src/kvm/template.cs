@@ -23,12 +23,12 @@ namespace Main
 
     protected void create_class(uint _memory, uint _vcpus)
     {
-      if (memory < 1)
+      if (_memory < 1)
       {
         throw new less_than_one_memory(); // input memory value as mebibytes, then convert to bytes
       }
       memory = _memory * 1048576; // bytes to mebis
-      if (vcpus < 1)
+      if (_vcpus < 1)
       {
         throw new less_than_one_vcpu();
       }

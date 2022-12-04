@@ -5,17 +5,35 @@ namespace Main
   class virtual_machine : template_virtual_machine
   {
     int vm_fd;
-    List<int>? vcpus_list;
+    List<int> vcpus_list;
     kvm.KvmUserspaceMemoryRegion ram_region;
 
-    public virtual_machine(int kvm_fd, uint _memory, uint _vcpus) : base(_memory, _vcpus)
+    public virtual_machine(uint _memory, uint _vcpus) : base(_memory, _vcpus)
     {
-      create_vm(kvm_fd);
+      vcpus_list = new List<int> { };
     }
 
-    public virtual_machine(int kvm_fd, uint _memory, uint _vcpus, string _name) : base(_memory, _vcpus, _name)
+    public virtual_machine(uint _memory, uint _vcpus, string _name) : base(_memory, _vcpus, _name)
+    {
+      vcpus_list = new List<int> { };
+    }
+
+    /*
+    Order of operations:
+      - create vm
+      - define devices
+      - assign memory
+      - create vcpus
+      - assign registers
+    */
+
+    public void start_vm(int kvm_fd)
     {
       create_vm(kvm_fd);
+      initialise_devices();
+      initialise_memory();
+      create_vcpus(kvm_fd);
+      intialise_registers();
     }
 
     private void create_vm(int kvm_fd)
@@ -28,6 +46,10 @@ namespace Main
       {
         throw new vm_fd_not_created(vm_fd);
       }
+    }
+
+    private void initialise_memory()
+    {
       // map memory region + lock
       ram_region = kvm.define_memory_region(memory);
       // set memory region
@@ -38,6 +60,10 @@ namespace Main
       {
         throw new user_memory_region_not_set(memory, vm_fd);
       }
+    }
+
+    private void initialise_devices()
+    {
       /*
         Assign addresses for devices for vm
         has to happen before vcpus are made
@@ -75,7 +101,10 @@ namespace Main
       {
         throw new failed_creating_pit2(vm_fd);
       }
+    }
 
+    private void create_vcpus(int kvm_fd)
+    {
       /*
         Create and store vcpus
       */
@@ -84,7 +113,6 @@ namespace Main
       {
         throw new not_enough_logical_processors(vcpus, Environment.ProcessorCount);
       }
-      vcpus_list = new List<int> { };
       for (uint i = 0; i < vcpus; i++)
       {
         [DllImport("KVM_IOCTLS.so", SetLastError = true)]
@@ -99,13 +127,16 @@ namespace Main
           vcpus_list.Add(current_vcpu);
         }
       }
+    }
 
-
+    private void intialise_registers()
+    {
       // Get and set special registers for vcpus
       /*
         Cannot do this natively because csharp does not use separate types for arrays of different length, so the structs are diff from the c ones,
         and csharp cannot get an address for the c to point to
       */
+      int res;
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
       static extern int KVM_GET_and_SET_SREGS(int vcpu_fd, short is_arm64);
       for (uint i = 0; i < vcpus_list.Count; i++)
@@ -127,8 +158,6 @@ namespace Main
           throw new failed_setting_sregs(i, vm_fd);
         }
       }
-
-
     }
   }
 }
