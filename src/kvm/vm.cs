@@ -8,6 +8,11 @@ namespace Main
     List<int> vcpus_list;
     kvm.KvmUserspaceMemoryRegion ram_region;
 
+    /// <summary>
+    /// Stores a user definition of a virtual machine and contains the methods to manipulate it.
+    /// </summary>
+    /// <param name="_memory">Size of the vm's memory in mebibytes</param>
+    /// <param name="_vcpus">Number of vcpus that will be assigned to the vm. Can be any number but will be validated on vm creation</param>
     public virtual_machine(uint _memory, uint _vcpus) : base(_memory, _vcpus)
     {
       vcpus_list = new List<int> { };
