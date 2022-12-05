@@ -24,17 +24,32 @@ namespace Main
       IntPtr userspace_addr;
     }
 
+    /// <summary>
+    /// Retrieves a file descriptor for /dev/kvm
+    /// </summary>
+    /// <returns></returns>
     public static int get_kvm_fd()
     {
       return Mono.Unix.Native.Syscall.open("/dev/kvm", Mono.Unix.Native.OpenFlags.O_RDWR);
     }
 
+    /// <summary>
+    /// Retrieves value for kvm api version from kvm.
+    /// </summary>
+    /// <param name="fd">File descriptor for /dev/kvm</param>
+    /// <returns></returns>
     public static int get_basic_api_ver(int fd)
     {
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
       static extern int KVM_GET_API_VERSION(int kvm_file_descriptor);
       return KVM_GET_API_VERSION(fd);
     }
+
+    /// <summary>
+    /// Maps a region of memory using mmap and locks it using mlock.
+    /// </summary>
+    /// <param name="capacity"></param>
+    /// <returns></returns>
     public static kvm.KvmUserspaceMemoryRegion define_memory_region(nuint capacity)
     {
       Mono.Unix.Native.MmapProts prot_flags = Mono.Unix.Native.MmapProts.PROT_READ | Mono.Unix.Native.MmapProts.PROT_WRITE;
@@ -44,7 +59,11 @@ namespace Main
       return new kvm.KvmUserspaceMemoryRegion(0, 0, 0, capacity, mem);
     }
 
-    // Get max number of vcpus that can be created. limited by number of logical threads on host and kvm itself.
+    /// <summary>
+    /// Get max number of vcpus that can be created by kvm per vm. limited by number of logical threads on host and kvm.
+    /// </summary>
+    /// <param name="kvm_fd"></param>
+    /// <returns></returns>
     public static uint get_max_cpus(int kvm_fd)
     {
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]

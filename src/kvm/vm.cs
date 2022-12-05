@@ -12,7 +12,7 @@ namespace Main
     /// Stores a user definition of a virtual machine and contains the methods to manipulate it.
     /// </summary>
     /// <param name="_memory">Size of the vm's memory in mebibytes</param>
-    /// <param name="_vcpus">Number of vcpus that will be assigned to the vm. Can be any number but will be validated on vm creation</param>
+    /// <param name="_vcpus">Number of vcpus for this vm. Can be any number, but will be validated on vm creation</param>
     public virtual_machine(uint _memory, uint _vcpus) : base(_memory, _vcpus)
     {
       vcpus_list = new List<int> { };
@@ -32,16 +32,25 @@ namespace Main
       - assign registers
     */
 
-    public void start_vm(int kvm_fd)
+    /// <summary>
+    /// Creates a vm, assigns it its devices, memory and vcpus. 
+    /// </summary>
+    /// <param name="kvm_fd">File descriptor for an open /dev/kvm</param>
+    public void create_vm(int kvm_fd)
     {
-      create_vm(kvm_fd);
+      create_vm_fd(kvm_fd);
       initialise_devices();
       initialise_memory();
       create_vcpus(kvm_fd);
       intialise_registers();
     }
 
-    private void create_vm(int kvm_fd)
+    /// <summary>
+    /// Retrieves a file descriptor for a new vm. 
+    /// </summary>
+    /// <param name="kvm_fd">File descriptor for an open /dev/kvm</param>
+    /// <exception cref="vm_fd_not_created"></exception>
+    private void create_vm_fd(int kvm_fd)
     {
       // create vm fd
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
@@ -53,6 +62,10 @@ namespace Main
       }
     }
 
+    /// <summary>
+    /// Maps a region of memory using mmap, locks it with mlock and tells kvm this vm will use this region. 
+    /// </summary>
+    /// <exception cref="user_memory_region_not_set">Throws when kvm fails to assign the region of memory to the vm.</exception>
     private void initialise_memory()
     {
       // map memory region + lock
@@ -67,6 +80,13 @@ namespace Main
       }
     }
 
+    /// <summary>
+    /// Initialises necessary devices for creating a vm. May differ in implementation across platforms.
+    /// </summary>
+    /// <exception cref="failed_setting_tss_addr"></exception>
+    /// <exception cref="failed_setting_identity_map_addr"></exception>
+    /// <exception cref="failed_creating_irqchip"></exception>
+    /// <exception cref="failed_creating_pit2"></exception>
     private void initialise_devices()
     {
       /*
@@ -108,6 +128,12 @@ namespace Main
       }
     }
 
+    /// <summary>
+    /// If enough logical processors available, creates n vcpus for the vm.
+    /// </summary>
+    /// <param name="kvm_fd"></param>
+    /// <exception cref="not_enough_logical_processors"></exception>
+    /// <exception cref="failed_creating_vcpu"></exception>
     private void create_vcpus(int kvm_fd)
     {
       /*
@@ -134,6 +160,10 @@ namespace Main
       }
     }
 
+    /// <summary>
+    /// Assigns values for the vcpu registers. Cannot assign in csharp because csharp does not type its array lengths individually.
+    /// </summary>
+    /// <exception cref="failed_setting_sregs"></exception>
     private void intialise_registers()
     {
       // Get and set special registers for vcpus
