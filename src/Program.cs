@@ -24,7 +24,7 @@
         }
       }
 
-      var vm1 = new virtual_machine(128, 1);
+      var vm1 = new virtual_machine(8, 1);
       vm1.create_vm(kvm.get_kvm_fd());
     }
   }

@@ -8,7 +8,7 @@ namespace Main
 
   public class user_memory_region_not_set : SystemException
   {
-    public user_memory_region_not_set(nuint capacity, int vm_fd) : base(String.Format("Failed to set user memory region of {0} bytes on vm {1}.", capacity, vm_fd)) { }
+    public user_memory_region_not_set(ulong capacity, int vm_fd) : base(String.Format("Failed to set user memory region of {0} bytes on vm {1}.", capacity, vm_fd)) { }
   }
 
   public class not_enough_logical_processors : ArgumentOutOfRangeException

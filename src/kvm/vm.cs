@@ -13,12 +13,12 @@ namespace Main
     /// </summary>
     /// <param name="_memory">Size of the vm's memory in mebibytes</param>
     /// <param name="_vcpus">Number of vcpus for this vm. Can be any number, but will be validated on vm creation</param>
-    public virtual_machine(uint _memory, uint _vcpus) : base(_memory, _vcpus)
+    public virtual_machine(ulong _memory, uint _vcpus) : base(_memory, _vcpus)
     {
       vcpus_list = new List<int> { };
     }
 
-    public virtual_machine(uint _memory, uint _vcpus, string _name) : base(_memory, _vcpus, _name)
+    public virtual_machine(ulong _memory, uint _vcpus, string _name) : base(_memory, _vcpus, _name)
     {
       vcpus_list = new List<int> { };
     }
@@ -193,6 +193,12 @@ namespace Main
           throw new failed_setting_sregs(i, vm_fd);
         }
       }
+    }
+
+    // load linux into memory for os
+    private void load_os()
+    {
+
     }
   }
 }

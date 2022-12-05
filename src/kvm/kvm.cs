@@ -47,10 +47,11 @@ namespace Main
 
     /// <summary>
     /// Maps a region of memory using mmap and locks it using mlock.
+    /// May require running ```ulimit -l (bytes)``` to increase the locked memory limit.
     /// </summary>
     /// <param name="capacity"></param>
     /// <returns></returns>
-    public static kvm.KvmUserspaceMemoryRegion define_memory_region(nuint capacity)
+    public static kvm.KvmUserspaceMemoryRegion define_memory_region(ulong capacity)
     {
       Mono.Unix.Native.MmapProts prot_flags = Mono.Unix.Native.MmapProts.PROT_READ | Mono.Unix.Native.MmapProts.PROT_WRITE;
       Mono.Unix.Native.MmapFlags map_flags = Mono.Unix.Native.MmapFlags.MAP_PRIVATE | Mono.Unix.Native.MmapFlags.MAP_ANONYMOUS | Mono.Unix.Native.MmapFlags.MAP_NORESERVE;
