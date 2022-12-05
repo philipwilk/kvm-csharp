@@ -201,6 +201,7 @@ namespace Main
     }
 
     // load linux into memory for os
+    // this by the way https://gist.github.com/zserge/ae9098a75b2b83a1299d19b79b5fe488
     private void load_os(string image)
     {
       int image_fd = Mono.Unix.Native.Syscall.open("/dev/kvm", Mono.Unix.Native.OpenFlags.O_RDONLY);
@@ -214,7 +215,6 @@ namespace Main
       static extern int load_guest(ulong mem_size, IntPtr image_data, ulong image_size);
       int res;
       res = load_guest(memory, image_data, image_bytes);
-
     }
   }
 }
