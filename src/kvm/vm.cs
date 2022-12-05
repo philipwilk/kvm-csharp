@@ -45,6 +45,11 @@ namespace Main
       intialise_registers();
     }
 
+    public void start_vm(string image_path)
+    {
+      load_os(image_path);
+    }
+
     /// <summary>
     /// Retrieves a file descriptor for a new vm. 
     /// </summary>
@@ -206,7 +211,9 @@ namespace Main
       Mono.Unix.Native.Syscall.close(image_fd);
 
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
-      static extern int load_guest(long mem_size, IntPtr image_data, long image_size);
+      static extern int load_guest(ulong mem_size, IntPtr image_data, ulong image_size);
+      int res;
+      res = load_guest(memory, image_data, image_bytes);
 
     }
   }
