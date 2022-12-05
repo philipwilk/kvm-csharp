@@ -48,6 +48,7 @@ namespace Main
     /// <summary>
     /// Maps a region of memory using mmap and locks it using mlock.
     /// May require running ```ulimit -l (bytes)``` to increase the locked memory limit.
+    /// Also may require setting this value ```DefaultLimitMEMLOCK=infinity``` in /etc/systemd/system.conf and /etc/systemd/user.conf as done here https://github.com/clearlinux/distribution/issues/2372#issuecomment-861757594
     /// </summary>
     /// <param name="capacity"></param>
     /// <returns></returns>

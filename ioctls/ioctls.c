@@ -151,3 +151,28 @@ int KVM_CREATE_PIT2(int vm_fd)
   pit.flags = 0;
   return ioctl(vm_fd, req, &pit);
 }
+
+int load_guest(long mem_size, unsigned long long image_data, unsigned long image_size)
+{
+  struct boot_params *boot =
+      (struct boot_params *)(((unsigned char *)mem_size) + 0x10000);
+  void *cmdline = (void *)(((unsigned char *)mem_size) + 0x20000);
+  void *kernel = (void *)(((unsigned char *)mem_size) + 0x100000);
+  memset(boot, 0, sizeof(struct boot_params));
+  memmove(boot, image_data, sizeof(struct boot_params));
+  unsigned long setup_sectors = boot->hdr.setup_sects;
+  unsigned long setupsz = (setup_sectors = 1) * 512;
+  boot->hdr.vid_mode = 0xFFFF; // vga
+  boot->hdr.type_of_loader = 0xFF;
+  boot->hdr.ramdisk_image = 0x0;
+  boot->hdr.ram_size = 0x0;
+  boot->hdr.loadflags |= CAN_USE_HEAP | 0x01 | KEEP_SEGMENTS;
+  boot->hdr.heap_end_ptr = 0xFE00;
+  boot->hdr.ext_loader_ver = 0x0;
+  boot->hdr.cmd_line_ptr = 0x20000;
+
+  memset(cmdline, 0, boot->hdr.cmdline_size);
+  memcpy(cmdline, "console=tty0", 14);
+  memmove(kernel, (char *)image_data + setupsz, image_size - setupsz);
+  return 0;
+}

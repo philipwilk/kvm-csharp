@@ -196,8 +196,17 @@ namespace Main
     }
 
     // load linux into memory for os
-    private void load_os()
+    private void load_os(string image)
     {
+      int image_fd = Mono.Unix.Native.Syscall.open("/dev/kvm", Mono.Unix.Native.OpenFlags.O_RDONLY);
+      ulong image_bytes = (ulong)(new FileInfo(image)).Length;
+      Mono.Unix.Native.MmapProts prot_flags = Mono.Unix.Native.MmapProts.PROT_READ | Mono.Unix.Native.MmapProts.PROT_WRITE;
+      Mono.Unix.Native.MmapFlags map_flags = Mono.Unix.Native.MmapFlags.MAP_PRIVATE;
+      IntPtr image_data = Mono.Unix.Native.Syscall.mmap(IntPtr.Zero, image_bytes, prot_flags, map_flags, image_fd, 0);
+      Mono.Unix.Native.Syscall.close(image_fd);
+
+      [DllImport("KVM_IOCTLS.so", SetLastError = true)]
+      static extern int load_guest(long mem_size, IntPtr image_data, long image_size);
 
     }
   }
