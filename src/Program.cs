@@ -24,8 +24,8 @@
         }
       }
 
+
       var vm1 = new virtual_machine(9, 1);
-      vm1.create_vm(kvm.get_kvm_fd());
       vm1.start_vm("/home/philip/Documents/test-bzImage2");
     }
   }

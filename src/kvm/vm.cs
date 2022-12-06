@@ -4,7 +4,9 @@ namespace Main
 {
   class virtual_machine : template_virtual_machine
   {
+    int kvm_fd;
     int vm_fd;
+    bool is_open = false;
     List<int> vcpus_list;
     protected kvm.KvmUserspaceMemoryRegion ram_region;
 
@@ -36,18 +38,26 @@ namespace Main
     /// Creates a vm, assigns it its devices, memory and vcpus. 
     /// </summary>
     /// <param name="kvm_fd">File descriptor for an open /dev/kvm</param>
-    public void create_vm(int kvm_fd)
+    public void create_vm_devices()
     {
-      create_vm_fd(kvm_fd);
+      create_vm_fd();
       initialise_devices();
       initialise_memory();
-      create_vcpus(kvm_fd);
+      create_vcpus();
       intialise_registers();
     }
 
     public void start_vm(string image_path)
     {
+      if (is_open)
+      {
+        Console.WriteLine("Already running!");
+        return;
+      }
+      kvm_fd = kvm.get_kvm_fd();
+      create_vm_devices();
       load_os(image_path);
+      is_open = true;
     }
 
     /// <summary>
@@ -55,7 +65,7 @@ namespace Main
     /// </summary>
     /// <param name="kvm_fd">File descriptor for an open /dev/kvm</param>
     /// <exception cref="vm_fd_not_created"></exception>
-    private void create_vm_fd(int kvm_fd)
+    private void create_vm_fd()
     {
       // create vm fd
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
@@ -139,7 +149,7 @@ namespace Main
     /// <param name="kvm_fd"></param>
     /// <exception cref="not_enough_logical_processors"></exception>
     /// <exception cref="failed_creating_vcpu"></exception>
-    private void create_vcpus(int kvm_fd)
+    private void create_vcpus()
     {
       /*
         Create and store vcpus
@@ -216,6 +226,22 @@ namespace Main
       int res;
       res = load_guest(ram_region.userspace_addr, image_data, image_bytes);
       Console.WriteLine(res);
+    }
+
+    public void stop_vm()
+    {
+      if (!is_open)
+      {
+        Console.WriteLine("Already stopped!");
+      }
+      Mono.Unix.Native.Syscall.close(kvm_fd);
+      Mono.Unix.Native.Syscall.close(vm_fd);
+      foreach (var vcpu in vcpus_list)
+      {
+        Mono.Unix.Native.Syscall.close(vcpu);
+      }
+      Mono.Unix.Native.Syscall.munmap(ram_region.userspace_addr, 1 << 30);
+
     }
   }
 }
