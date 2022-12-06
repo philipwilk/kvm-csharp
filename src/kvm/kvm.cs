@@ -21,7 +21,7 @@ namespace Main
       uint flags;
       ulong guest_phys_addr;
       ulong memory_size;
-      IntPtr userspace_addr;
+      public IntPtr userspace_addr;
     }
 
     /// <summary>

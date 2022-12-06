@@ -6,7 +6,7 @@ namespace Main
   {
     int vm_fd;
     List<int> vcpus_list;
-    kvm.KvmUserspaceMemoryRegion ram_region;
+    protected kvm.KvmUserspaceMemoryRegion ram_region;
 
     /// <summary>
     /// Stores a user definition of a virtual machine and contains the methods to manipulate it.
@@ -212,9 +212,9 @@ namespace Main
       Mono.Unix.Native.Syscall.close(image_fd);
 
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
-      static extern int load_guest(ulong mem_size, IntPtr image_data, ulong image_size);
+      static extern int load_guest(IntPtr memory_start, IntPtr image_data, ulong image_size);
       int res;
-      res = load_guest(memory, image_data, image_bytes);
+      res = load_guest(ram_region.userspace_addr, image_data, image_bytes);
       Console.WriteLine(res);
     }
   }

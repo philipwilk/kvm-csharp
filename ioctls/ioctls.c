@@ -158,12 +158,13 @@ int KVM_CREATE_PIT2(int vm_fd)
 /// @param image_data
 /// @param image_size
 /// @return
-int load_guest(long mem_size, unsigned long long image_data, unsigned long image_size)
+
+int load_guest(unsigned long long memory_start, unsigned long long image_data, unsigned long image_size)
 {
   struct boot_params *boot =
-      (struct boot_params *)(((unsigned char *)mem_size) + 0x10000);
-  void *cmdline = (void *)(((unsigned char *)mem_size) + 0x20000);
-  void *kernel = (void *)(((unsigned char *)mem_size) + 0x100000);
+      (struct boot_params *)(((unsigned char *)memory_start) + 0x10000);
+  void *cmdline = (void *)(((unsigned char *)memory_start) + 0x20000);
+  void *kernel = (void *)(((unsigned char *)memory_start) + 0x100000);
   memset(boot, 0, sizeof(struct boot_params));
   memmove(boot, (void *)image_data, sizeof(struct boot_params));
   unsigned long setup_sectors = boot->hdr.setup_sects;

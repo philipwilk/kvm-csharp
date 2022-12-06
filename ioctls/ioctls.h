@@ -94,4 +94,4 @@ int KVM_SET_TSS_ADDR(int vm_fd);
 int KVM_SET_IDENTITY_MAP_ADDR(int vm_fd);
 int KVM_CREATE_IRQCHIP(int vm_fd);
 int KVM_CREATE_PIT2(int vm_fd);
-int load_guest(long mem_size, unsigned long long image_data, unsigned long image_size);
+int load_guest(unsigned long long memory_start, unsigned long long image_data, unsigned long image_size);
