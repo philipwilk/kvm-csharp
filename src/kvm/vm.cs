@@ -215,6 +215,7 @@ namespace Main
       static extern int load_guest(ulong mem_size, IntPtr image_data, ulong image_size);
       int res;
       res = load_guest(memory, image_data, image_bytes);
+      Console.WriteLine(res);
     }
   }
 }
