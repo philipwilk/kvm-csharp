@@ -3,6 +3,7 @@
 #include <asm/ioctl.h>
 #include <asm/bootparam.h>
 #include <fcntl.h>
+#include <string.h>
 
 #include "./ioctls.h"
 
@@ -152,6 +153,11 @@ int KVM_CREATE_PIT2(int vm_fd)
   return ioctl(vm_fd, req, &pit);
 }
 
+/// @brief Load a linux bz2image into memory
+/// @param mem_size
+/// @param image_data
+/// @param image_size
+/// @return
 int load_guest(long mem_size, unsigned long long image_data, unsigned long image_size)
 {
   struct boot_params *boot =
@@ -159,7 +165,7 @@ int load_guest(long mem_size, unsigned long long image_data, unsigned long image
   void *cmdline = (void *)(((unsigned char *)mem_size) + 0x20000);
   void *kernel = (void *)(((unsigned char *)mem_size) + 0x100000);
   memset(boot, 0, sizeof(struct boot_params));
-  memmove(boot, image_data, sizeof(struct boot_params));
+  memmove(boot, (void *)image_data, sizeof(struct boot_params));
   unsigned long setup_sectors = boot->hdr.setup_sects;
   unsigned long setupsz = (setup_sectors = 1) * 512;
   boot->hdr.vid_mode = 0xFFFF; // vga
@@ -172,7 +178,7 @@ int load_guest(long mem_size, unsigned long long image_data, unsigned long image
   boot->hdr.cmd_line_ptr = 0x20000;
 
   memset(cmdline, 0, boot->hdr.cmdline_size);
-  memcpy(cmdline, "console=tty0", 14);
+  memcpy(cmdline, "console=tty0", 13);
   memmove(kernel, (char *)image_data + setupsz, image_size - setupsz);
   return 0;
 }
