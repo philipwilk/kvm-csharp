@@ -243,5 +243,11 @@ namespace Main
       Mono.Unix.Native.Syscall.munmap(ram_region.userspace_addr, 1 << 30);
 
     }
+
+    // TODO: run guest. will need to be async for user to be able to interact. will not be fun.
+    int guest_run()
+    {
+      return 0;
+    }
   }
 }
