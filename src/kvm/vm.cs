@@ -210,8 +210,10 @@ namespace Main
       }
     }
 
-    // load linux into memory for os
-    // this by the way https://gist.github.com/zserge/ae9098a75b2b83a1299d19b79b5fe488
+    /// <summary>
+    /// Load a linux kernel into vm memory. Based off the theory of https://gist.github.com/zserge/ae9098a75b2b83a1299d19b79b5fe488
+    /// </summary>
+    /// <param name="image">Path to linux image.</param>
     private void load_os(string image)
     {
       int image_fd = Mono.Unix.Native.Syscall.open(image, Mono.Unix.Native.OpenFlags.O_RDONLY);
@@ -228,6 +230,9 @@ namespace Main
       Console.WriteLine(res);
     }
 
+    /// <summary>
+    /// Close all file descriptors.
+    /// </summary>
     public void stop_vm()
     {
       if (!is_open)
@@ -245,8 +250,9 @@ namespace Main
     }
 
     // TODO: run guest. will need to be async for user to be able to interact. will not be fun.
-    int guest_run()
+    private int guest_run()
     {
+      
       return 0;
     }
   }
