@@ -204,7 +204,7 @@ namespace Main
     // this by the way https://gist.github.com/zserge/ae9098a75b2b83a1299d19b79b5fe488
     private void load_os(string image)
     {
-      int image_fd = Mono.Unix.Native.Syscall.open("/dev/kvm", Mono.Unix.Native.OpenFlags.O_RDONLY);
+      int image_fd = Mono.Unix.Native.Syscall.open(image, Mono.Unix.Native.OpenFlags.O_RDONLY);
       ulong image_bytes = (ulong)(new FileInfo(image)).Length;
       Mono.Unix.Native.MmapProts prot_flags = Mono.Unix.Native.MmapProts.PROT_READ | Mono.Unix.Native.MmapProts.PROT_WRITE;
       Mono.Unix.Native.MmapFlags map_flags = Mono.Unix.Native.MmapFlags.MAP_PRIVATE;
