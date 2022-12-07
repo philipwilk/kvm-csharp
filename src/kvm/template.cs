@@ -2,10 +2,10 @@ namespace Main
 {
   public class template_virtual_machine
   {
-    protected ulong memory { get; set; }// bytes
-    protected uint vcpus { get; set; }
-    protected string name { get; set; }
-    protected Guid id { get; }
+    public ulong memory { get; set; }// bytes
+    public uint vcpus { get; set; }
+    public string name { get; set; }
+    public Guid id { get; }
 
     public template_virtual_machine(ulong _memory, uint _vcpus)
     {

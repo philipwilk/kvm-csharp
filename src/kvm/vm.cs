@@ -7,7 +7,8 @@ namespace Main
     int kvm_fd;
     int vm_fd;
     bool is_open = false;
-    List<int> vcpus_list;
+    List<int> vcpus_list = new List<int> { };
+    Guid? template_id { get; set; }
     protected kvm.KvmUserspaceMemoryRegion ram_region;
 
     /// <summary>
@@ -17,12 +18,20 @@ namespace Main
     /// <param name="_vcpus">Number of vcpus for this vm. Can be any number, but will be validated on vm creation</param>
     public virtual_machine(ulong _memory, uint _vcpus) : base(_memory, _vcpus)
     {
-      vcpus_list = new List<int> { };
     }
 
     public virtual_machine(ulong _memory, uint _vcpus, string _name) : base(_memory, _vcpus, _name)
     {
-      vcpus_list = new List<int> { };
+    }
+
+    public virtual_machine(template_virtual_machine template) : base(template.memory, template.vcpus, template.name)
+    {
+      template_id = template.id;
+    }
+
+    public virtual_machine(template_virtual_machine template, string _name) : base(template.memory, template.vcpus, _name)
+    {
+      template_id = template.id;
     }
 
     /*

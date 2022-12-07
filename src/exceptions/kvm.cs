@@ -1,4 +1,3 @@
-
 namespace Main
 {
   public class vm_fd_not_created : SystemException
