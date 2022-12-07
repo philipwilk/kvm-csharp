@@ -65,7 +65,6 @@ namespace Main
       while (raw_arg_q.Count > 0)
       {
         var front = raw_arg_q.Dequeue();
-        Console.WriteLine(front);
         param.key_format key_format;
 
         if (reg_equals.IsMatch(front))
@@ -84,7 +83,6 @@ namespace Main
         {
           throw new ArgumentException(String.Format("Invalid parameter format {0}", front));
         }
-        Console.WriteLine(key_format);
         var equals_val = "";
         var parsed_front_key = "";
         if (key_format == param.key_format.Equals)
@@ -159,11 +157,8 @@ namespace Main
           equals_val = "True";
         }
 
-        Console.WriteLine(equals_val);
-
-      add: arg_dict.Add(front_key, equals_val);
+        arg_dict.Add(front_key, equals_val);
       }
-
       return arg_dict;
     }
   }
