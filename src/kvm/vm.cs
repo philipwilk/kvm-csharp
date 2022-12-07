@@ -45,6 +45,7 @@ namespace Main
       initialise_memory();
       create_vcpus();
       intialise_registers();
+      assign_cpu_features();
     }
 
     public void start_vm(string image_path)
@@ -58,6 +59,7 @@ namespace Main
       create_vm_devices();
       load_os(image_path);
       is_open = true;
+      guest_run();
     }
 
     /// <summary>
@@ -210,13 +212,23 @@ namespace Main
       }
     }
 
+    private void assign_cpu_features()
+    {
+      [DllImport("KVM_IOCTLS.so", SetLastError = true)]
+      static extern int KVM_SET_CPUID2(int kvm_fd, int vcpu_fd);
+      foreach (var vcpu in vcpus_list)
+      {
+        KVM_SET_CPUID2(kvm_fd, vcpu);
+      }
+    }
+
     /// <summary>
     /// Load a linux kernel into vm memory. Based off the theory of https://gist.github.com/zserge/ae9098a75b2b83a1299d19b79b5fe488
     /// </summary>
     /// <param name="image">Path to linux image.</param>
     private void load_os(string image)
     {
-      int image_fd = Mono.Unix.Native.Syscall.open(image, Mono.Unix.Native.OpenFlags.O_RDONLY);
+      int image_fd = Mono.Unix.Native.Syscall.open("/home/philip/Documents/test-bzImage2", Mono.Unix.Native.OpenFlags.O_RDONLY);
       ulong image_bytes = (ulong)(new FileInfo(image)).Length;
       Mono.Unix.Native.MmapProts prot_flags = Mono.Unix.Native.MmapProts.PROT_READ | Mono.Unix.Native.MmapProts.PROT_WRITE;
       Mono.Unix.Native.MmapFlags map_flags = Mono.Unix.Native.MmapFlags.MAP_PRIVATE;
@@ -247,14 +259,28 @@ namespace Main
     }
 
     // TODO: run guest. will need to be async for user to be able to interact. will not be fun.
-    private int guest_run()
+    private void guest_run()
     {
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
       static extern int KVM_GET_VCPU_MMAP_SIZE(int kvm_fd);
       int vcpu_map_size = KVM_GET_VCPU_MMAP_SIZE(kvm_fd);
-      
 
-      return 0;
+      Mono.Unix.Native.MmapProts prot_flags = Mono.Unix.Native.MmapProts.PROT_READ | Mono.Unix.Native.MmapProts.PROT_WRITE;
+      Mono.Unix.Native.MmapFlags map_flags = Mono.Unix.Native.MmapFlags.MAP_SHARED;
+      List<IntPtr> kvm_run_fd_list = new List<IntPtr> { };
+      foreach (var vcpu in vcpus_list)
+      {
+        kvm_run_fd_list.Add(Mono.Unix.Native.Syscall.mmap(IntPtr.Zero, (ulong)vcpu_map_size, prot_flags, map_flags, vcpu, 0));
+      }
+      [DllImport("KVM_IOCTLS.so", SetLastError = true)]
+      static extern void run_vm(int vcpu_fd, IntPtr run_size_fd, IntPtr mem);
+
+      for (int i = 0; i < vcpus_list.Count; i++)
+      {
+        run_vm(vcpus_list[i], kvm_run_fd_list[i], ram_region.userspace_addr);
+      }
+
+      return;
     }
   }
 }

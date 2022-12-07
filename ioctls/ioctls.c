@@ -3,6 +3,7 @@
 #include <asm/ioctl.h>
 #include <asm/bootparam.h>
 #include <fcntl.h>
+#include <sys/mman.h>
 #include <string.h>
 
 #include "./ioctls.h"
@@ -153,6 +154,29 @@ int KVM_CREATE_PIT2(int vm_fd)
   return ioctl(vm_fd, req, &pit);
 }
 
+int KVM_SET_CPUID2(int kvm_fd, int vcpu_fd)
+{
+  struct kvm_cpuid cpuid;
+  cpuid.nent = sizeof(cpuid.entries) / sizeof(cpuid.entries[0]);
+  __u_long req = _IOWR(KVM_ID, KVM_GET_SUPPORTED_CPUID_seq, struct kvm_cpuid2);
+  int res = ioctl(kvm_fd, req, &cpuid);
+
+  for (unsigned int i = 0; i < cpuid.nent; i++)
+  {
+    struct kvm_cpuid_entry2 *entry = &cpuid.entries[i];
+    if (entry->function == KVM_CPUID_SIGNATURE)
+    {
+      entry->eax = KVM_CPUID_FEATURES;
+      entry->ebx = 0x4b4d564b; // KVMK
+      entry->ecx = 0x564b4d56; // VMKV
+      entry->edx = 0x4d;       // M
+    }
+  }
+  req = _IOW(KVM_ID, KVM_SET_CPUID2_seq, struct kvm_cpuid2);
+  res = ioctl(vcpu_fd, req, &cpuid);
+  return res;
+}
+
 /// @brief Load a linux bz2image into memory
 /// @param mem_size
 /// @param image_data
@@ -188,4 +212,48 @@ int KVM_GET_VCPU_MMAP_SIZE(int kvm_fd)
 {
   __u_long req = _IO(KVM_ID, KVM_GET_VCPU_MMAP_SIZE_seq);
   return ioctl(kvm_fd, req, 0);
+}
+
+int KVM_RUN(int vcpu_fd)
+{
+  __u_long req = _IO(KVM_ID, KVM_RUN_seq);
+  return ioctl(vcpu_fd, req, 0);
+}
+
+int run_vm(int vcpu_fd, void *run_size_fd, void *mem)
+{
+  struct kvm_run *run = run_size_fd;
+
+  for (;;)
+  {
+    int ret = KVM_RUN((int *)vcpu_fd);
+    if (ret < 0)
+    {
+      return -1;
+    }
+
+    switch (run->exit_reason)
+    {
+    case KVM_EXIT_IO:
+      if (run->io.port == 0x3f8 && run->io.direction == KVM_EXIT_IO_OUT)
+      {
+        unsigned int size = run->io.size;
+        unsigned long offset = run->io.data_offset;
+        printf("%.*s", size * run->io.count, (char *)run + offset);
+      }
+      else if (run->io.port == 0x3f8 + 5 &&
+               run->io.direction == KVM_EXIT_IO_IN)
+      {
+        char *value = (char *)run + run->io.data_offset;
+        *value = 0x20;
+      }
+      break;
+    case KVM_EXIT_SHUTDOWN:
+      printf("shutdown\n");
+      return 0;
+    default:
+      printf("reason: %d\n", run->exit_reason);
+      return -1;
+    }
+  }
 }
