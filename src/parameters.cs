@@ -19,7 +19,9 @@ namespace Main
     {
       NoPreflights,
       UserLogSeverityLevel,
-      LogFilters
+      LogFilters,
+      sqlUser,
+      sqlPassword
     }
 
     // And, add a case for the parameter - whether it is a boolean parameter that is true or false (true) or has a user defined value (false) 
@@ -36,6 +38,14 @@ namespace Main
             return false;
           }
         case param.parameters.LogFilters:
+          {
+            return false;
+          }
+        case param.parameters.sqlPassword:
+          {
+            return false;
+          }
+        case param.parameters.sqlUser:
           {
             return false;
           }
@@ -74,6 +84,7 @@ namespace Main
         {
           throw new ArgumentException(String.Format("Invalid parameter format {0}", front));
         }
+        Console.WriteLine(key_format);
         var equals_val = "";
         var parsed_front_key = "";
         if (key_format == param.key_format.Equals)
@@ -96,7 +107,7 @@ namespace Main
         }
 
         if (key_format == key_format.Space && !param_is_bool_type(front_key) && raw_arg_q.Count < 1
-        | raw_arg_q.Count > 0 && reg_equals.IsMatch(raw_arg_q.Peek()) | reg_space.IsMatch(raw_arg_q.Peek()) | reg_boolean.IsMatch(raw_arg_q.Dequeue()))
+        | raw_arg_q.Count > 0 && reg_equals.IsMatch(raw_arg_q.Peek()) | reg_space.IsMatch(raw_arg_q.Peek()) | reg_boolean.IsMatch(raw_arg_q.Peek()))
         {
           throw new ArgumentException(String.Format("Space formatted parameter without value: {0}", parsed_front_key));
         }
@@ -123,7 +134,7 @@ namespace Main
             equals_val = "True";
           }
         }
-        else
+        else if (key_format == param.key_format.Space)
         {
           equals_val = raw_arg_q.Dequeue();
         }
@@ -148,7 +159,9 @@ namespace Main
           equals_val = "True";
         }
 
-        arg_dict.Add(front_key, equals_val);
+        Console.WriteLine(equals_val);
+
+      add: arg_dict.Add(front_key, equals_val);
       }
 
       return arg_dict;
