@@ -86,7 +86,7 @@ namespace Main
     private void initialise_memory()
     {
       // map memory region + lock
-      ram_region = kvm.define_memory_region(memory);
+      ram_region = kvm.define_memory_region(1073741824);
       // set memory region
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
       static extern int KVM_SET_USER_MEMORY_REGION(int vm_fd, kvm.KvmUserspaceMemoryRegion region);
@@ -264,29 +264,29 @@ namespace Main
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
       static extern int KVM_GET_VCPU_MMAP_SIZE(int kvm_fd);
       int vcpu_map_size = KVM_GET_VCPU_MMAP_SIZE(kvm_fd);
-
+      /*
       Mono.Unix.Native.MmapProts prot_flags = Mono.Unix.Native.MmapProts.PROT_READ | Mono.Unix.Native.MmapProts.PROT_WRITE;
       Mono.Unix.Native.MmapFlags map_flags = Mono.Unix.Native.MmapFlags.MAP_SHARED;
       List<IntPtr> kvm_run_fd_list = new List<IntPtr> { };
       foreach (var vcpu in vcpus_list)
       {
-        kvm_run_fd_list.Add(Mono.Unix.Native.Syscall.mmap(IntPtr.Zero, (ulong)vcpu_map_size, prot_flags, map_flags, vcpu, 0));
-      }
+        kvm_run_fd_list.Add(Mono.Unix.Native.Syscall.mmap(IntPtr.Zero, vcpu_map_size, prot_flags, map_flags, vcpu, 0));
+      }*/
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
-      static extern int run_vm(int vcpu_fd, IntPtr run_size_fd, IntPtr mem);
+      static extern int run_vm(int vcpu_fd, int vcpu_map_size, IntPtr mem);
 
       /*
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
       static extern int KVM_RUN(int vcpu_fd);*/
       int res = 0;
-      while (res == 0)
+
+      for (int i = 0; i < vcpus_list.Count; i++)
       {
-        for (int i = 0; i < vcpus_list.Count; i++)
-        {
-          res = run_vm(vcpus_list[i], kvm_run_fd_list[i], ram_region.userspace_addr);
-        }
+        res = run_vm(vcpus_list[i], vcpu_map_size, ram_region.userspace_addr);
       }
 
+
+      stop_vm();
       return;
     }
   }

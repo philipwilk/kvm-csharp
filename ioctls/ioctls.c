@@ -130,13 +130,13 @@ int KVM_SET_REGS(int vcpu)
 int KVM_SET_TSS_ADDR(int vm_fd)
 {
   __u_long req = _IO(KVM_ID, KVM_SET_TSS_ADDR_seq);
-  return ioctl(vm_fd, req, 0xfffbc000 + 0x1000); // numbers from qemu implementation
+  return ioctl(vm_fd, req, 0xffffd000 /*using zserge's numbers rn*/ /*0xfffbc000 + 0x1000 numbers from qemu implementation*/);
 }
 
 int KVM_SET_IDENTITY_MAP_ADDR(int vm_fd)
 {
   __u_long req = _IOW(KVM_ID, KVM_SET_IDENTITY_MAP_ADDR_seq, unsigned long);
-  unsigned long identity_base = 0xfeffc000;
+  unsigned long identity_base = 0x7ffcc7b3e738 /*0xfeffc000*/;
   return ioctl(vm_fd, req, &identity_base);
 }
 
@@ -149,8 +149,8 @@ int KVM_CREATE_IRQCHIP(int vm_fd)
 int KVM_CREATE_PIT2(int vm_fd)
 {
   __u_long req = _IOW(KVM_ID, KVM_CREATE_PIT2_seq, struct kvm_pit_config);
-  struct kvm_pit_config pit;
-  pit.flags = 0;
+  struct kvm_pit_config pit = {
+      .flags = 0};
   return ioctl(vm_fd, req, &pit);
 }
 
@@ -183,7 +183,7 @@ int KVM_SET_CPUID2(int kvm_fd, int vcpu_fd)
 /// @param image_size
 /// @return
 
-int load_guest(unsigned long long memory_start, unsigned long long image_data, unsigned long image_size)
+int load_guest(void *memory_start, void *image_data, unsigned long image_size)
 {
   struct boot_params *boot =
       (struct boot_params *)(((unsigned char *)memory_start) + 0x10000);
@@ -208,7 +208,7 @@ int load_guest(unsigned long long memory_start, unsigned long long image_data, u
   return 0;
 }
 
-int KVM_GET_VCPU_MMAP_SIZE(int kvm_fd)
+unsigned int KVM_GET_VCPU_MMAP_SIZE(int kvm_fd)
 {
   __u_long req = _IO(KVM_ID, KVM_GET_VCPU_MMAP_SIZE_seq);
   return ioctl(kvm_fd, req, 0);
@@ -220,37 +220,40 @@ int KVM_RUN(int vcpu_fd)
   return ioctl(vcpu_fd, req, 0);
 }
 
-int run_vm(int vcpu_fd, void *run_size_fd, void *mem)
+int run_vm(int vcpu_fd, int vcpu_map_size, void *mem)
 {
-  struct kvm_run *run = run_size_fd;
-
-  int ret = KVM_RUN((int *)vcpu_fd);
-  if (ret < 0)
+  struct kvm_run *run = mmap(0, vcpu_map_size, PROT_READ | PROT_WRITE, MAP_SHARED, vcpu_fd, 0);
+  run->flags = 65535;
+  for (;;)
   {
-    return -1;
-  }
+    int ret = KVM_RUN(vcpu_fd);
+    if (ret < 0)
+    {
+      return -1;
+    }
 
-  switch (run->exit_reason)
-  {
-  case KVM_EXIT_IO:
-    if (run->io.port == 0x3f8 && run->io.direction == KVM_EXIT_IO_OUT)
+    switch (run->exit_reason)
     {
-      unsigned int size = run->io.size;
-      unsigned long offset = run->io.data_offset;
-      printf("%.*s", size * run->io.count, (char *)run + offset);
+    case KVM_EXIT_IO:
+      if (run->io.port == 0x3f8 && run->io.direction == KVM_EXIT_IO_OUT)
+      {
+        unsigned int size = run->io.size;
+        unsigned long offset = run->io.data_offset;
+        printf("%.*s", size * run->io.count, (char *)run + offset);
+      }
+      else if (run->io.port == 0x3f8 + 5 &&
+               run->io.direction == KVM_EXIT_IO_IN)
+      {
+        char *value = (char *)run + run->io.data_offset;
+        *value = 0x20;
+      }
+      break;
+    case KVM_EXIT_SHUTDOWN:
+      printf("shutdown\n");
+      return 0;
+    default:
+      printf("reason: %d\n", run->exit_reason);
+      return -1;
     }
-    else if (run->io.port == 0x3f8 + 5 &&
-             run->io.direction == KVM_EXIT_IO_IN)
-    {
-      char *value = (char *)run + run->io.data_offset;
-      *value = 0x20;
-    }
-    break;
-  case KVM_EXIT_SHUTDOWN:
-    printf("shutdown\n");
-    return 0;
-  default:
-    printf("reason: %d\n", run->exit_reason);
-    return -1;
   }
 }
