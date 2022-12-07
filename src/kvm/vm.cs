@@ -225,9 +225,7 @@ namespace Main
 
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
       static extern int load_guest(IntPtr memory_start, IntPtr image_data, ulong image_size);
-      int res;
-      res = load_guest(ram_region.userspace_addr, image_data, image_bytes);
-      Console.WriteLine(res);
+      load_guest(ram_region.userspace_addr, image_data, image_bytes);
     }
 
     /// <summary>
@@ -246,13 +244,16 @@ namespace Main
         Mono.Unix.Native.Syscall.close(vcpu);
       }
       Mono.Unix.Native.Syscall.munmap(ram_region.userspace_addr, 1 << 30);
-
     }
 
     // TODO: run guest. will need to be async for user to be able to interact. will not be fun.
     private int guest_run()
     {
+      [DllImport("KVM_IOCTLS.so", SetLastError = true)]
+      static extern int KVM_GET_VCPU_MMAP_SIZE(int kvm_fd);
+      int vcpu_map_size = KVM_GET_VCPU_MMAP_SIZE(kvm_fd);
       
+
       return 0;
     }
   }

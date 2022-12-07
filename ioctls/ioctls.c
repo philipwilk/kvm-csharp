@@ -183,3 +183,9 @@ int load_guest(unsigned long long memory_start, unsigned long long image_data, u
   memmove(kernel, (char *)image_data + setupsz, image_size - setupsz);
   return 0;
 }
+
+int KVM_GET_VCPU_MMAP_SIZE(int kvm_fd)
+{
+  __u_long req = _IO(KVM_ID, KVM_GET_VCPU_MMAP_SIZE_seq);
+  return ioctl(kvm_fd, req, 0);
+}
