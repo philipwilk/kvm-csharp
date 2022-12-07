@@ -273,11 +273,18 @@ namespace Main
         kvm_run_fd_list.Add(Mono.Unix.Native.Syscall.mmap(IntPtr.Zero, (ulong)vcpu_map_size, prot_flags, map_flags, vcpu, 0));
       }
       [DllImport("KVM_IOCTLS.so", SetLastError = true)]
-      static extern void run_vm(int vcpu_fd, IntPtr run_size_fd, IntPtr mem);
+      static extern int run_vm(int vcpu_fd, IntPtr run_size_fd, IntPtr mem);
 
-      for (int i = 0; i < vcpus_list.Count; i++)
+      /*
+      [DllImport("KVM_IOCTLS.so", SetLastError = true)]
+      static extern int KVM_RUN(int vcpu_fd);*/
+      int res = 0;
+      while (res == 0)
       {
-        run_vm(vcpus_list[i], kvm_run_fd_list[i], ram_region.userspace_addr);
+        for (int i = 0; i < vcpus_list.Count; i++)
+        {
+          res = run_vm(vcpus_list[i], kvm_run_fd_list[i], ram_region.userspace_addr);
+        }
       }
 
       return;

@@ -224,36 +224,33 @@ int run_vm(int vcpu_fd, void *run_size_fd, void *mem)
 {
   struct kvm_run *run = run_size_fd;
 
-  for (;;)
+  int ret = KVM_RUN((int *)vcpu_fd);
+  if (ret < 0)
   {
-    int ret = KVM_RUN((int *)vcpu_fd);
-    if (ret < 0)
-    {
-      return -1;
-    }
+    return -1;
+  }
 
-    switch (run->exit_reason)
+  switch (run->exit_reason)
+  {
+  case KVM_EXIT_IO:
+    if (run->io.port == 0x3f8 && run->io.direction == KVM_EXIT_IO_OUT)
     {
-    case KVM_EXIT_IO:
-      if (run->io.port == 0x3f8 && run->io.direction == KVM_EXIT_IO_OUT)
-      {
-        unsigned int size = run->io.size;
-        unsigned long offset = run->io.data_offset;
-        printf("%.*s", size * run->io.count, (char *)run + offset);
-      }
-      else if (run->io.port == 0x3f8 + 5 &&
-               run->io.direction == KVM_EXIT_IO_IN)
-      {
-        char *value = (char *)run + run->io.data_offset;
-        *value = 0x20;
-      }
-      break;
-    case KVM_EXIT_SHUTDOWN:
-      printf("shutdown\n");
-      return 0;
-    default:
-      printf("reason: %d\n", run->exit_reason);
-      return -1;
+      unsigned int size = run->io.size;
+      unsigned long offset = run->io.data_offset;
+      printf("%.*s", size * run->io.count, (char *)run + offset);
     }
+    else if (run->io.port == 0x3f8 + 5 &&
+             run->io.direction == KVM_EXIT_IO_IN)
+    {
+      char *value = (char *)run + run->io.data_offset;
+      *value = 0x20;
+    }
+    break;
+  case KVM_EXIT_SHUTDOWN:
+    printf("shutdown\n");
+    return 0;
+  default:
+    printf("reason: %d\n", run->exit_reason);
+    return -1;
   }
 }
