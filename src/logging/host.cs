@@ -21,8 +21,9 @@ namespace Main
     public host()
     {
       init_host();
-      double mem_mb = Math.Truncate((double)memory / (1024 ^ 2));
-      friendly_name = String.Format("an {0} host with {1} threads and {2}Mb of memory total.", arch, threads, mem_mb);
+      // csharp cannot do maths apparently
+      // double mem_mb = Math.Truncate((double)memory / (1024 ^ 2));
+      friendly_name = String.Format("asn {0} host with {1} threads and {2} bytes of memory total.", arch, threads, memory);
     }
 
     private void init_host()
@@ -41,7 +42,7 @@ namespace Main
 
     public void hello()
     {
-      Console.WriteLine("Hello, I am {0}", friendly_name);
+      Console.WriteLine("Name: {0}\nUuid:{1}", friendly_name, uuid);
     }
   }
 }
