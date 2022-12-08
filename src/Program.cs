@@ -1,6 +1,19 @@
 ﻿namespace Main
 {
+  public class settings
+  {
+    public Guid self_uuid { get; set; }
 
+    public void update_file()
+    {
+      System.IO.File.WriteAllText(String.Format("{0}/settings.json", AppDomain.CurrentDomain.BaseDirectory), System.Text.Json.JsonSerializer.Serialize<settings>(this));
+    }
+
+    ~settings()
+    {
+      update_file();
+    }
+  }
   class program
   {
     public static void Main(string[] args)
@@ -28,11 +41,32 @@
         throw new no_db_details();
       }
 
-      host self = new host();
-      self.hello();
+      settings config;
+      if (!System.IO.File.Exists(String.Format("{0}/settings.json", AppDomain.CurrentDomain.BaseDirectory)))
+      {
+        config = new settings { };
+        System.IO.File.WriteAllText(String.Format("{0}/settings.json", AppDomain.CurrentDomain.BaseDirectory), System.Text.Json.JsonSerializer.Serialize<settings>(config));
+      }
+      else
+      {
+        config = System.Text.Json.JsonSerializer.Deserialize<settings>(System.IO.File.ReadAllText(String.Format("{0}/settings.json", AppDomain.CurrentDomain.BaseDirectory)))!;
+      }
 
-      var sql = new sql("localhost", parameters[param.parameters.sqlUser], parameters[param.parameters.sqlPassword]);
+      sql sql = new sql("localhost", parameters[param.parameters.sqlUser], parameters[param.parameters.sqlPassword]);
       sql.init_db();
+
+      host self;
+      if (config.self_uuid != Guid.Empty)
+      {
+        self = new host(config.self_uuid, sql.conn);
+      }
+      else
+      {
+        self = new host();
+        config.self_uuid = self.uuid;
+        config.update_file();
+        sql.create_host(self);
+      }
 
       List<virtual_machine> vms = new List<virtual_machine>();
       List<template_virtual_machine> templates = new List<template_virtual_machine>();

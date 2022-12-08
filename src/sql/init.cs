@@ -5,16 +5,16 @@ namespace Main
 
   partial class sql
   {
-    MySqlConnection conn;
+    public MySqlConnection conn { get; }
 
-    static string hosts_table = "CREATE TABLE IF NOT EXISTS hosts (Uuid uuid DEFAULT UUID(), FriendlyName text NOT NULL, Memory bigint unsigned NOT NULL, Cpus smallint NOT NULL, Arch text NOT NULL, Ip text, IsManager boolean NOT NULL, State text, primary key (Uuid));";
-    static string vdisks_table = "CREATE TABLE IF NOT EXISTS vdisks (Uuid uuid DEFAULT UUID(), Path text NOT NULL, Host Uuid, primary key (Uuid), foreign key (Host) references hosts(Uuid) on update cascade on delete set NULL);";
-    static string vdevs_table = "CREATE TABLE IF NOT EXISTS vdevs (Uuid uuid DEFAULT UUID(), Address bigint NOT NULL, Host Uuid, Type text NOT NULL, AddressLenght bigint NOT NULL, isSystem bool NOT NULL, primary key (Uuid), foreign key (Host) references hosts(Uuid) on update cascade on delete set NULL);";
-    static string templates_table = "CREATE TABLE IF NOT EXISTS vm_templates (Uuid uuid DEFAULT UUID(), FriendlyName text NOT NULL, Memory bigint unsigned NOT NULL, Vcpus smallint NOT NULL, BootDeviceType text, Arch text NOT NULL, primary key (Uuid));";
-    static string vms_table = "CREATE TABLE IF NOT EXISTS vms (Uuid uuid DEFAULT UUID(), FriendlyName text NOT NULL, Memory bigint unsigned NOT NULL, Vcpus smallint NOT NULL, BootDeviceType text, Template uuid, Arch text NOT NULL, primary key (Uuid), foreign key (Template) references vm_templates(Uuid));";
-    static string assigned_vdisk_table = "CREATE TABLE IF NOT EXISTS assigned_vdisks (Uuid uuid DEFAULT UUID(), BootOrder int, VmUuid uuid, VDiskUuid uuid, primary key (Uuid), foreign key (VmUuid) references vms(Uuid) on update cascade on delete set NULL, foreign key (VDiskUuid) references vdisks(Uuid) on update cascade on delete set NULL);";
-    static string assigned_vdev_table = "CREATE TABLE IF NOT EXISTS assigned_vdevs (Uuid uuid DEFAULT UUID(), DeviceOrder int, VmUuid uuid, VDevUuid uuid, primary key (Uuid), foreign key (VmUuid) references vms(Uuid) on update cascade on delete set NULL, foreign key (VDevUuid) references vdevs(Uuid) on update cascade on delete set NULL);";
-    static string running_vms = "CREATE TABLE IF NOT EXISTS running_vms (Uuid uuid DEFAULT UUID(), State text, Host uuid, IsOrphan bool, VmUuid uuid, primary key (Uuid), foreign key (Host) references hosts(Uuid), foreign key (VmUuid) references vms(Uuid));";
+    static string hosts_table = "CREATE TABLE IF NOT EXISTS hosts (Uuid uuid NOT NULL UNIQUE, FriendlyName text NOT NULL, Memory bigint unsigned NOT NULL, Cpus smallint NOT NULL, Arch text NOT NULL, Ip text, IsManager boolean NOT NULL, State text, primary key (Uuid));";
+    static string vdisks_table = "CREATE TABLE IF NOT EXISTS vdisks (Uuid uuid NOT NULL UNIQUE, Path text NOT NULL, Host Uuid, primary key (Uuid), foreign key (Host) references hosts(Uuid) on update cascade on delete set NULL);";
+    static string vdevs_table = "CREATE TABLE IF NOT EXISTS vdevs (Uuid uuid NOT NULL UNIQUE, Address bigint NOT NULL, Host Uuid, Type text NOT NULL, AddressLenght bigint NOT NULL, isSystem bool NOT NULL, primary key (Uuid), foreign key (Host) references hosts(Uuid) on update cascade on delete set NULL);";
+    static string templates_table = "CREATE TABLE IF NOT EXISTS vm_templates (Uuid uuid NOT NULL UNIQUE, FriendlyName text NOT NULL, Memory bigint unsigned NOT NULL, Vcpus smallint NOT NULL, BootDeviceType text, Arch text NOT NULL, primary key (Uuid));";
+    static string vms_table = "CREATE TABLE IF NOT EXISTS vms (Uuid uuid NOT NULL UNIQUE, FriendlyName text NOT NULL, Memory bigint unsigned NOT NULL, Vcpus smallint NOT NULL, BootDeviceType text, Template uuid, Arch text NOT NULL, primary key (Uuid), foreign key (Template) references vm_templates(Uuid));";
+    static string assigned_vdisk_table = "CREATE TABLE IF NOT EXISTS assigned_vdisks (Uuid uuid NOT NULL UNIQUE, BootOrder int, VmUuid uuid, VDiskUuid uuid, primary key (Uuid), foreign key (VmUuid) references vms(Uuid) on update cascade on delete set NULL, foreign key (VDiskUuid) references vdisks(Uuid) on update cascade on delete set NULL);";
+    static string assigned_vdev_table = "CREATE TABLE IF NOT EXISTS assigned_vdevs (Uuid uuid NOT NULL UNIQUE, DeviceOrder int, VmUuid uuid, VDevUuid uuid, primary key (Uuid), foreign key (VmUuid) references vms(Uuid) on update cascade on delete set NULL, foreign key (VDevUuid) references vdevs(Uuid) on update cascade on delete set NULL);";
+    static string running_vms = "CREATE TABLE IF NOT EXISTS running_vms (Uuid uuid NOT NULL UNIQUE, State text, Host uuid, IsOrphan bool, VmUuid uuid, primary key (Uuid), foreign key (Host) references hosts(Uuid), foreign key (VmUuid) references vms(Uuid));";
 
     /// <summary>
     /// Create connection to mysql database and open it.
@@ -69,9 +69,14 @@ namespace Main
     }
 
     // Create host structure in db
-    private void init_host()
+    public void create_host(host self)
     {
+      string sql_str = String.Format("INSERT IGNORE INTO hosts (Uuid, FriendlyName, Memory, Cpus, Arch, isManager, State) VALUES ('{0}', '{1}', {2}, {3}, '{4}', {5}, '{6}');", self.uuid, self.friendly_name, self.memory, self.threads, self.arch, self.is_manager, self.state);
 
+      MySqlCommand create_host = new MySqlCommand(sql_str, conn);
+      create_host.ExecuteNonQuery();
+
+      return;
     }
 
   }
