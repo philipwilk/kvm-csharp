@@ -22,15 +22,5 @@ namespace Main
     {
       // stub
     }
-
-    public void create_template(ulong memory, short vcpus)
-    {
-      // stub
-    }
-
-    public void remove_template(Guid template_id)
-    {
-      // stub
-    }
   }
 }

@@ -71,12 +71,11 @@
       List<virtual_machine> vms = new List<virtual_machine>();
       List<template_virtual_machine> templates = new List<template_virtual_machine>();
 
-      /*
-      while (true)
-      {
-        var vm1 = new virtual_machine(128, 1);
-        vm1.start_vm("/home/philip/Documents/test-bzImage2");
-      }*/
+
+
+      var vm1 = new virtual_machine(128, 1);
+      vm1.start_vm("/home/philip/Documents/test-bzImage2");
+
     }
   }
 }
