@@ -28,6 +28,9 @@
         throw new no_db_details();
       }
 
+      host self = new host();
+      self.hello();
+
       var sql = new sql("localhost", parameters[param.parameters.sqlUser], parameters[param.parameters.sqlPassword]);
       sql.init_db();
 

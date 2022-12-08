@@ -40,7 +40,7 @@ namespace Main
     {
       var str = "CREATE DATABASE IF NOT EXISTS kvm CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci";
       MySqlCommand comm = new MySqlCommand(str, conn);
-      comm.ExecuteNonQuery();
+      int first_run = comm.ExecuteNonQuery(); // 1 if yes, 0 if no
       conn.ChangeDatabase("kvm");
 
       MySqlCommand create_hosts_table_table = new MySqlCommand(hosts_table, conn);
@@ -66,9 +66,13 @@ namespace Main
 
       MySqlCommand create_running_vms_table = new MySqlCommand(running_vms, conn);
       create_running_vms_table.ExecuteNonQuery();
-
     }
 
+    // Create host structure in db
+    private void init_host()
+    {
+
+    }
 
   }
 }
