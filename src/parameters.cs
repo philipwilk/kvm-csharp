@@ -53,7 +53,7 @@ namespace Main
       }
     }
 
-    public static IDictionary<param.parameters, String> get_parameters(string[] raw_args)
+    public static IDictionary<param.parameters, String> get_parameters(List<string> raw_args)
     {
       var raw_arg_q = new Queue<String>();
       foreach (var raw_parameter in raw_args)

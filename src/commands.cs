@@ -2,59 +2,134 @@ namespace Main
 {
   class commands
   {
-    public void run_command(string[] raw_args)
+    public enum command
     {
-      var raw_arg_q = new Queue<String>();
-      foreach (var raw_command in raw_args)
+      vm,
+      template,
+      info,
+      vdisks,
+      vdevs,
+      hosts,
+      help
+    }
+
+    public static void execute(command action, string subaction, IDictionary<param.parameters, String> parameters)
+    {
+      switch (action)
       {
-        raw_arg_q.Enqueue(raw_command);
+        case command.info:
+          {
+            var x = new command_info();
+            x.execute(subaction, parameters);
+            return;
+          }
+        case command.hosts:
+          {
+            var x = new command_hosts();
+            x.execute(subaction, parameters);
+            return;
+          }
       }
+    }
 
-      string command = raw_arg_q.Dequeue();
-
-      switch (command.ToLower())
+    public static string get_sub_command(command action, List<string> raw_args)
+    {
+      switch (action)
+      {
+        case command.info:
+          {
+            command_info x = new command_info(raw_args);
+            return x.get_sub_action();
+          }
+        case command.hosts:
+          {
+            command_hosts x = new command_hosts(raw_args);
+            return x.get_sub_action();
+          }
+        default:
+          {
+            // https://stackoverflow.com/a/3442429
+            Console.WriteLine("Invalid command OR help called. Valid commands:");
+            string list_of_commands = "";
+            foreach (string comm in Enum.GetNames(typeof(command)))
+            {
+              list_of_commands += String.Format("{0}, ", comm);
+            }
+            Console.WriteLine(list_of_commands);
+            Console.WriteLine("For help with a command, run the command with the 'help' argument");
+            return "";
+          }
+      }
+    }
+    public static command match_command(List<string> args)
+    {
+      switch (comm(args).ToLower())
       {
         case "vm":
           {
-            return;
+            return commands.command.vm;
           }
         case "template":
           {
-            return;
+            return commands.command.template;
           }
         case "info":
           {
-            return;
+            return commands.command.info;
           }
         case "vdisks":
           {
-            return;
+            return commands.command.vdisks;
           }
         case "vdevs":
           {
-            return;
+            return commands.command.vdevs;
           }
         case "hosts":
           {
-            var x = new command_hosts(raw_arg_q);
-            return;
+            return commands.command.hosts;
           }
-        default: return;
+        default: return commands.command.help;
+      }
+    }
+    public static string comm(List<string> args)
+    {
+      if (args.Count > 0)
+      {
+        string tmp = args[0];
+        args.RemoveAt(0);
+        return tmp;
+      }
+      else
+      {
+        return "";
       }
     }
   }
   abstract class run
   {
-    protected virtual string command_name { get; }
-    public Queue<String> args { get; set; }
+    protected virtual string command_info { get; }
+    public List<String>? args { get; set; }
 
-    public run(string _command_name, Queue<String> _args)
+    public run(string _command_info, List<String> _args)
     {
-      command_name = _command_name;
+      command_info = _command_info;
       args = _args;
     }
 
-    public abstract void execute();
+    public run(string _command_info)
+    {
+      command_info = _command_info;
+    }
+
+    protected void help()
+    {
+      Console.WriteLine(command_info);
+    }
+
+    public abstract void execute(string subaction, IDictionary<param.parameters, String> parameters);
+
+    public abstract string get_sub_action();
   }
 }
 

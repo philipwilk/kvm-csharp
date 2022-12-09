@@ -18,7 +18,11 @@
   {
     public static void Main(string[] args)
     {
-      var parameters = param.get_parameters(args);
+      List<string> args_list = new List<string>(args);
+      commands.command action = commands.match_command(args_list);
+      string subaction = commands.get_sub_command(action, args_list);
+
+      var parameters = param.get_parameters(args_list);
       List<String> modifiers = new List<String>();
       if (!parameters.ContainsKey(param.parameters.NoPreflights))
       {
@@ -68,9 +72,10 @@
         sql.create_host(self);
       }
 
-      List<virtual_machine> vms = new List<virtual_machine>();
-      List<template_virtual_machine> templates = new List<template_virtual_machine>();
+      //List<virtual_machine> vms = new List<virtual_machine>();
+      //List<template_virtual_machine> templates = new List<template_virtual_machine>();
 
+      commands.execute(action, subaction, parameters);
 
 
       var vm1 = new virtual_machine(128, 1);
