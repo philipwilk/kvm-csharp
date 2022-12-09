@@ -66,7 +66,7 @@ namespace Main
           }
         case "start":
           {
-            start_vm(self.uuid);
+            start_vm(self);
             return;
           }
         case "stop":
@@ -175,7 +175,7 @@ namespace Main
       int rows_written = sql.create_vm(vm);
     }
 
-    private void start_vm(Guid host)
+    private void start_vm(host self)
     {
       sql sql = new sql("localhost", parameters![param.parameters.sqlUser], parameters[param.parameters.sqlPassword]);
 
@@ -210,8 +210,17 @@ namespace Main
 
       vm = new virtual_machine(_uuid, _FriendlyName, _memory, _vcpus, _arch, _template);
 
+      if (self.memory < vm.memory)
+      {
+        throw new OutOfMemoryException("Not enough host memory to create this vm");
+      }
+      if (self.threads < vm.vcpus)
+      {
+        throw new Exception("Not enough cores to start this vm.");
+      }
+
       // tell sql db is running
-      int affected_rows = sql.start_vm(vm.id, host);
+      int affected_rows = sql.start_vm(vm.id, self.uuid);
 
       vm.start_vm("/home/philip/Documents/test-bzImage2");
     }
