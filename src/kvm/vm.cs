@@ -9,6 +9,7 @@ namespace Main
     bool is_open = false;
     List<int> vcpus_list = new List<int> { };
     Guid? template_id { get; set; }
+
     protected kvm.KvmUserspaceMemoryRegion ram_region;
 
     /// <summary>
@@ -24,7 +25,7 @@ namespace Main
     {
     }
 
-    public virtual_machine(template_virtual_machine template) : base(template.memory, template.vcpus, template.name)
+    public virtual_machine(template_virtual_machine template) : base(template.memory, template.vcpus, template.friendly_name)
     {
       template_id = template.id;
     }

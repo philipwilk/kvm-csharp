@@ -29,6 +29,30 @@ namespace Main
             x.execute(subaction, parameters);
             return;
           }
+        case command.template:
+          {
+            var x = new command_template();
+            x.execute(subaction, parameters);
+            return;
+          }
+        case command.vm:
+          {
+            var x = new command_vm();
+            x.execute(subaction, parameters);
+            return;
+          }
+        case command.vdevs:
+          {
+            var x = new command_vdev();
+            x.execute(subaction, parameters);
+            return;
+          }
+        case command.vdisks:
+          {
+            var x = new command_vdisk();
+            x.execute(subaction, parameters);
+            return;
+          }
       }
     }
 
@@ -44,6 +68,26 @@ namespace Main
         case command.hosts:
           {
             command_hosts x = new command_hosts(raw_args);
+            return x.get_sub_action();
+          }
+        case command.template:
+          {
+            command_template x = new command_template(raw_args);
+            return x.get_sub_action();
+          }
+        case command.vm:
+          {
+            command_vm x = new command_vm(raw_args);
+            return x.get_sub_action();
+          }
+        case command.vdisks:
+          {
+            command_vdisk x = new command_vdisk(raw_args);
+            return x.get_sub_action();
+          }
+        case command.vdevs:
+          {
+            command_vdev x = new command_vdev(raw_args);
             return x.get_sub_action();
           }
         default:
@@ -110,6 +154,7 @@ namespace Main
   {
     protected virtual string command_info { get; }
     public List<String>? args { get; set; }
+    protected IDictionary<param.parameters, String>? parameters;
 
     public run(string _command_info, List<String> _args)
     {
@@ -124,7 +169,7 @@ namespace Main
 
     protected void help()
     {
-      Console.WriteLine(command_info);
+      Console.WriteLine("Helpme: {0}", command_info);
     }
 
     public abstract void execute(string subaction, IDictionary<param.parameters, String> parameters);

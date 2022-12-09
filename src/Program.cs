@@ -72,6 +72,8 @@
         sql.create_host(self);
       }
 
+      sql.conn.Close();
+
       //List<virtual_machine> vms = new List<virtual_machine>();
       //List<template_virtual_machine> templates = new List<template_virtual_machine>();
 
