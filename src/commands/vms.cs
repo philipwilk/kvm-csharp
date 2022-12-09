@@ -250,9 +250,9 @@ namespace Main
         {
           _template = datareader.GetGuid("Template");
         }
+        datareader.Close();
 
         vms.Add(new virtual_machine(_uuid, _FriendlyName, _memory, _vcpus, _arch, _template));
-        ;
       }
 
       Console.WriteLine("List of all vms:");
