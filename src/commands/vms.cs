@@ -1,3 +1,5 @@
+using MySql.Data.MySqlClient;
+
 namespace Main
 {
   class command_vm : run
@@ -45,7 +47,7 @@ namespace Main
           }
         case "create":
           {
-            // create vm STUB 
+            create_vm();
             return;
           }
         case "delete":
@@ -64,6 +66,104 @@ namespace Main
             return;
           }
       }
+    }
+
+    private void create_vm()
+    {
+      sql sql = new sql("localhost", parameters![param.parameters.sqlUser], parameters[param.parameters.sqlPassword]);
+
+      ulong memory;
+      uint vcpus;
+      string? input;
+      virtual_machine vm;
+      Console.WriteLine("Create vm using template - YES? (ENTER for default NO");
+      input = Console.ReadLine();
+      // create without template
+      if (input == "")
+      {
+      mem: bool res = false;
+        Console.Write("Enter memory size (Mb): ");
+        input = Console.ReadLine();
+        res = ulong.TryParse(input, out memory);
+        if (res)
+        {
+          memory = ulong.Parse(input!);
+        }
+        else
+        {
+          Console.WriteLine("Invalid values given, try again.");
+          goto mem;
+        }
+      vcpus: res = false;
+        Console.Write("Enter number of vcpus: ");
+        input = Console.ReadLine();
+        res = uint.TryParse(input, out vcpus);
+        if (res)
+        {
+          vcpus = uint.Parse(input!);
+        }
+
+        if (!res)
+        {
+          Console.WriteLine("Invalid value given, try again.");
+          goto vcpus;
+        }
+
+        Console.Write("Enter vm name (or ENTER for default)");
+        input = Console.ReadLine();
+        if (input!.Trim() == "")
+        {
+          vm = new virtual_machine(memory, vcpus);
+        }
+        else
+        {
+          vm = new virtual_machine(memory, vcpus, input.Trim());
+        }
+      }
+      // creates from template
+      else
+      {
+      getuuid: Console.WriteLine("Enter name or uuid of template to use: ");
+        input = Console.ReadLine();
+        template_virtual_machine template;
+        MySqlDataReader res;
+        Guid id;
+        bool is_uuid = Guid.TryParse(input!.Trim(), out id);
+        if (is_uuid)
+        {
+          res = sql.get_template(sql.conn, id);
+        }
+        else
+        {
+          res = sql.get_template(sql.conn, input!.Trim());
+        }
+        if (!res.HasRows)
+        {
+          Console.WriteLine("No vm found with name or uuid {0}", input);
+          goto getuuid;
+        }
+        res.Read();
+        Guid _uuid = res.GetGuid("Uuid");
+        string _FriendlyName = res.GetString("FriendlyName");
+        ulong _memory = res.GetUInt64("Memory");
+        uint _vcpus = res.GetUInt32("Vcpus");
+        string _arch = res.GetString("Arch");
+        res.Close();
+        template = new template_virtual_machine(_uuid, _memory, _vcpus, _FriendlyName, _arch);
+        Console.Write("Enter vm name (or ENTER for default)");
+        input = Console.ReadLine();
+        if (input!.Trim() == "")
+        {
+          vm = new virtual_machine(template);
+        }
+        else
+        {
+          vm = new virtual_machine(template, input.Trim());
+        }
+      }
+
+      // write vm to db
+      int rows_written = sql.create_vm(vm);
     }
   }
 }

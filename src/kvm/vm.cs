@@ -8,7 +8,7 @@ namespace Main
     int vm_fd;
     bool is_open = false;
     List<int> vcpus_list = new List<int> { };
-    Guid? template_id { get; set; }
+    public Guid? template_id { get; set; }
 
     protected kvm.KvmUserspaceMemoryRegion ram_region;
 

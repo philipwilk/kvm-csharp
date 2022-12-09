@@ -51,7 +51,7 @@ namespace Main
           }
         case "list":
           {
-            // list templates
+            list_templates();
             return;
           }
       }
@@ -113,7 +113,33 @@ namespace Main
       {
         Console.WriteLine("Failed to write template to database");
       }
+    }
 
+    private void list_templates()
+    {
+      sql sql = new sql("localhost", parameters![param.parameters.sqlUser], parameters[param.parameters.sqlPassword]);
+      var datareader = sql.get_templates(sql.conn);
+      List<template_virtual_machine> templates = new List<template_virtual_machine> { };
+      Guid _uuid;
+      string _FriendlyName;
+      ulong _memory;
+      uint _vcpus;
+      string _arch;
+      while (datareader.Read())
+      {
+        _uuid = datareader.GetGuid("Uuid");
+        _FriendlyName = datareader.GetString("FriendlyName");
+        _memory = datareader.GetUInt64("Memory");
+        _vcpus = datareader.GetUInt32("Vcpus");
+        _arch = datareader.GetString("Arch");
+        templates.Add(new template_virtual_machine(_uuid, _memory, _vcpus, _FriendlyName, _arch));
+      }
+
+      Console.WriteLine("List of all templates:");
+      foreach (var template in templates)
+      {
+        Console.WriteLine("Name: '{0}', Memory: {1}, Vcpus: {2}, uuid: {3}", template.friendly_name, template.memory, template.vcpus, template.id);
+      }
     }
   }
 }

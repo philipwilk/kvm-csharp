@@ -38,9 +38,7 @@ namespace Main
 
     public host(Guid _uuid, MySqlConnection conn)
     {
-      string sql_str = String.Format("SELECT * FROM hosts WHERE Uuid = '{0}';", _uuid);
-      MySqlCommand get_host = new MySqlCommand(sql_str, conn);
-      MySqlDataReader res = get_host.ExecuteReader();
+      var res = sql.get_host(_uuid, conn);
       res.Read();
       friendly_name = res.GetString("FriendlyName");
       memory = get_bytes();

@@ -5,11 +5,14 @@ namespace Main
 
   partial class sql
   {
-    public void create_vm(Guid template_id)
+    public int create_vm(virtual_machine vm)
     {
-      // stub
-      // create_vm(template mem, template vcpus)
-      // set template id
+      string sql_str = String.Format("INSERT INTO vms (Uuid, FriendlyName, Memory, Vcpus, Template, Arch) VALUES ('{0}', '{1}', {2}, {3}, '{4}', '{5}');", vm.id, vm.friendly_name, vm.memory, vm.vcpus, vm.template_id, vm.id);
+
+      MySqlCommand create_vm = new MySqlCommand(sql_str, conn);
+      int res = create_vm.ExecuteNonQuery();
+
+      return res;
     }
 
     public void create_vm(ulong memory, short vcpus)
