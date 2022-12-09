@@ -29,7 +29,7 @@ namespace Main
       }
     }
 
-    public override void execute(string subaction, IDictionary<param.parameters, String> _parameters)
+    public override void execute(string subaction, IDictionary<param.parameters, String> _parameters, host self)
     {
       parameters = _parameters;
       switch (subaction)

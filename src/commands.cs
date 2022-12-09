@@ -13,44 +13,44 @@ namespace Main
       help
     }
 
-    public static void execute(command action, string subaction, IDictionary<param.parameters, String> parameters)
+    public static void execute(command action, string subaction, IDictionary<param.parameters, String> parameters, host self)
     {
       switch (action)
       {
         case command.info:
           {
             var x = new command_info();
-            x.execute(subaction, parameters);
+            x.execute(subaction, parameters, self);
             return;
           }
         case command.hosts:
           {
             var x = new command_hosts();
-            x.execute(subaction, parameters);
+            x.execute(subaction, parameters, self);
             return;
           }
         case command.template:
           {
             var x = new command_template();
-            x.execute(subaction, parameters);
+            x.execute(subaction, parameters, self);
             return;
           }
         case command.vm:
           {
             var x = new command_vm();
-            x.execute(subaction, parameters);
+            x.execute(subaction, parameters, self);
             return;
           }
         case command.vdevs:
           {
             var x = new command_vdev();
-            x.execute(subaction, parameters);
+            x.execute(subaction, parameters, self);
             return;
           }
         case command.vdisks:
           {
             var x = new command_vdisk();
-            x.execute(subaction, parameters);
+            x.execute(subaction, parameters, self);
             return;
           }
       }
@@ -172,7 +172,7 @@ namespace Main
       Console.WriteLine("Helpme: {0}", command_info);
     }
 
-    public abstract void execute(string subaction, IDictionary<param.parameters, String> parameters);
+    public abstract void execute(string subaction, IDictionary<param.parameters, String> parameters, host self);
 
     public abstract string get_sub_action();
   }

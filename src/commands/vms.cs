@@ -35,7 +35,7 @@ namespace Main
       }
     }
 
-    public override void execute(string subaction, IDictionary<param.parameters, String> _parameters)
+    public override void execute(string subaction, IDictionary<param.parameters, String> _parameters, host self)
     {
       parameters = _parameters;
       switch (subaction)
@@ -200,7 +200,13 @@ namespace Main
       res.Close();
 
       vm = new virtual_machine(_uuid, _FriendlyName, _memory, _vcpus, _arch, _template);
+
+      // tell sql db is running
+
+
       vm.start_vm("/home/philip/Documents/test-bzImage2");
+
+      // tell sql db is stopped
     }
 
     private void list_vms()

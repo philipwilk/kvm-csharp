@@ -9,7 +9,7 @@ namespace Main
     public command_hosts() : base(description)
     { }
 
-    public override void execute(string subaction, IDictionary<param.parameters, String> parameters)
+    public override void execute(string subaction, IDictionary<param.parameters, String> parameters, host self)
     {
       switch (subaction)
       {
