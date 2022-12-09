@@ -25,12 +25,12 @@ namespace Main
     {
     }
 
-    public virtual_machine(template_virtual_machine template) : base(template.memory, template.vcpus, template.friendly_name)
+    public virtual_machine(template_virtual_machine template) : base(template)
     {
       template_id = template.id;
     }
 
-    public virtual_machine(template_virtual_machine template, string _name) : base(template.memory, template.vcpus, _name)
+    public virtual_machine(template_virtual_machine template, string _name) : base(template, _name)
     {
       template_id = template.id;
     }

@@ -23,10 +23,29 @@ namespace Main
       friendly_name = _name;
       id = Guid.NewGuid();
     }
+    public template_virtual_machine(template_virtual_machine template)
+    {
+      memory = template.memory;
+      vcpus = template.vcpus;
+      friendly_name = template.friendly_name;
+      arch = template.arch;
+      id = Guid.NewGuid();
+    }
+
+    public template_virtual_machine(template_virtual_machine template, string name)
+    {
+      memory = template.memory;
+      vcpus = template.vcpus;
+      friendly_name = name;
+      arch = template.arch;
+      id = Guid.NewGuid();
+    }
+
 
     public template_virtual_machine(Guid uuid, ulong _memory, uint _vcpus, string _name, string _arch)
     {
-      create_class(_memory, _vcpus);
+      memory = _memory;
+      vcpus = _vcpus;
       arch = _arch;
       friendly_name = _name;
       id = uuid;

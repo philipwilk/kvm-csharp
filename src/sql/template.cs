@@ -29,7 +29,7 @@ namespace Main
 
     public static MySqlDataReader get_template(MySqlConnection conn, Guid uuid)
     {
-      string sql_str = String.Format("SELECT * FROM vm_templates WHERE Uuid = {0}", uuid);
+      string sql_str = String.Format("SELECT * FROM vm_templates WHERE Uuid = '{0}'", uuid);
       MySqlCommand get_templates = new MySqlCommand(sql_str, conn);
       MySqlDataReader res = get_templates.ExecuteReader();
       return res;
