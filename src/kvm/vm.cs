@@ -25,6 +25,11 @@ namespace Main
     {
     }
 
+    public virtual_machine(Guid _id, string _name, ulong _memory, uint _vcpus, string _arch, Guid _template) : base(_id, _memory, _vcpus, _name, _arch)
+    {
+      template_id = _template;
+    }
+
     public virtual_machine(template_virtual_machine template) : base(template)
     {
       template_id = template.id;

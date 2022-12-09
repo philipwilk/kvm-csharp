@@ -62,7 +62,7 @@ namespace Main
           }
         case "start":
           {
-            // start vm STUB
+            start_vm();
             return;
           }
       }
@@ -164,6 +164,43 @@ namespace Main
 
       // write vm to db
       int rows_written = sql.create_vm(vm);
+    }
+
+    public void start_vm()
+    {
+      sql sql = new sql("localhost", parameters![param.parameters.sqlUser], parameters[param.parameters.sqlPassword]);
+
+      string? input;
+      virtual_machine vm;
+    getvm: Console.WriteLine("Enter name or uuid of vm to start");
+      input = Console.ReadLine();
+      Guid id;
+      MySqlDataReader res;
+      bool is_uuid = Guid.TryParse(input!.Trim(), out id);
+      if (is_uuid)
+      {
+        res = sql.get_vm(sql.conn, id);
+      }
+      else
+      {
+        res = sql.get_vm(sql.conn, input);
+      }
+      if (!res.HasRows)
+      {
+        Console.WriteLine("Couldn't find a vm with name or uuid {0}", input);
+        goto getvm;
+      }
+      res.Read();
+      Guid _uuid = res.GetGuid("Uuid");
+      string _FriendlyName = res.GetString("FriendlyName");
+      ulong _memory = res.GetUInt64("Memory");
+      uint _vcpus = res.GetUInt32("Vcpus");
+      string _arch = res.GetString("Arch");
+      Guid _template = res.GetGuid("Template");
+      res.Close();
+
+      vm = new virtual_machine(_uuid, _FriendlyName, _memory, _vcpus, _arch, _template);
+      vm.start_vm("/home/philip/Documents/test-bzImage2");
     }
   }
 }

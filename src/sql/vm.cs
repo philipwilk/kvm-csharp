@@ -23,10 +23,20 @@ namespace Main
       return res;
     }
 
-    public void create_vm(ulong memory, short vcpus)
+    public MySqlDataReader get_vm(MySqlConnection conn, Guid id)
     {
-      // stub
-      // template id = null
+      string sql_str = String.Format("SELECT * FROM vms WHERE Uuid = '{0}'", id);
+      MySqlCommand get_vm = new MySqlCommand(sql_str, conn);
+      MySqlDataReader res = get_vm.ExecuteReader();
+      return res;
+    }
+
+    public MySqlDataReader get_vm(MySqlConnection conn, string name)
+    {
+      string sql_str = String.Format("SELECT * FROM vm_templates WHERE FriendlyName = '{0}'", name);
+      MySqlCommand get_vm = new MySqlCommand(sql_str, conn);
+      MySqlDataReader res = get_vm.ExecuteReader();
+      return res;
     }
 
     public void remove_vm(Guid vm_id)

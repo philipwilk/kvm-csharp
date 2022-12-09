@@ -78,11 +78,6 @@
       //List<template_virtual_machine> templates = new List<template_virtual_machine>();
 
       commands.execute(action, subaction, parameters);
-
-
-      var vm1 = new virtual_machine(128, 1);
-      vm1.start_vm("/home/philip/Documents/test-bzImage2");
-
     }
   }
 }
