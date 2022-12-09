@@ -57,7 +57,7 @@ namespace Main
           }
         case "list":
           {
-            // list vms STUB
+            list_vms();
             return;
           }
         case "start":
@@ -166,7 +166,7 @@ namespace Main
       int rows_written = sql.create_vm(vm);
     }
 
-    public void start_vm()
+    private void start_vm()
     {
       sql sql = new sql("localhost", parameters![param.parameters.sqlUser], parameters[param.parameters.sqlPassword]);
 
@@ -201,6 +201,46 @@ namespace Main
 
       vm = new virtual_machine(_uuid, _FriendlyName, _memory, _vcpus, _arch, _template);
       vm.start_vm("/home/philip/Documents/test-bzImage2");
+    }
+
+    private void list_vms()
+    {
+      sql sql = new sql("localhost", parameters![param.parameters.sqlUser], parameters[param.parameters.sqlPassword]);
+      var datareader = sql.get_vms(sql.conn);
+      List<virtual_machine> vms = new List<virtual_machine> { };
+      Guid _uuid;
+      string _FriendlyName;
+      ulong _memory;
+      uint _vcpus;
+      string _arch;
+      Guid _template;
+
+      while (datareader.Read())
+      {
+        _uuid = datareader.GetGuid("Uuid");
+        _FriendlyName = datareader.GetString("FriendlyName");
+        _memory = datareader.GetUInt64("Memory");
+        _vcpus = datareader.GetUInt32("Vcpus");
+        _arch = datareader.GetString("Arch");
+        bool temp_is_null = Convert.IsDBNull(datareader["Template"]);
+        if (temp_is_null)
+        {
+          _template = Guid.Empty;
+        }
+        else
+        {
+          _template = datareader.GetGuid("Template");
+        }
+
+        vms.Add(new virtual_machine(_uuid, _FriendlyName, _memory, _vcpus, _arch, _template));
+        ;
+      }
+
+      Console.WriteLine("List of all vms:");
+      foreach (var vm in vms)
+      {
+        Console.WriteLine("Name: '{0}', Memory: {1}, Vcpus: {2}, uuid: {3}, template used: {4}", vm.friendly_name, vm.memory, vm.vcpus, vm.id, vm.template_id);
+      }
     }
   }
 }

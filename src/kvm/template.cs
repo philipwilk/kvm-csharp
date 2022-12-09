@@ -12,7 +12,7 @@ namespace Main
     {
       create_class(_memory, _vcpus);
       arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString();
-      friendly_name = String.Format("virtual machine with {0} mebibytes and {1} vcpus.", _memory, vcpus);
+      friendly_name = String.Format("virtual machine with {0} mebibytes and {1} vcpus", _memory, vcpus);
       id = Guid.NewGuid();
     }
 

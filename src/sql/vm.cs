@@ -39,6 +39,14 @@ namespace Main
       return res;
     }
 
+    public MySqlDataReader get_vms(MySqlConnection conn)
+    {
+      string sql_str = String.Format("SELECT * FROM vms");
+      MySqlCommand get_vms = new MySqlCommand(sql_str, conn);
+      MySqlDataReader res = get_vms.ExecuteReader();
+      return res;
+    }
+
     public void remove_vm(Guid vm_id)
     {
       // stub
