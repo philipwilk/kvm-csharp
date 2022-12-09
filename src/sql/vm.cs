@@ -51,5 +51,19 @@ namespace Main
     {
       // stub
     }
+
+    public int start_vm(Guid vm_id, Guid host)
+    {
+      string sql_str = String.Format("INSERT INTO running_vms (Uuid, State, Host, IsOrphan, VmUuid) VALUES ('{0}', 'running', '{1}', false, '{2}');", Guid.NewGuid(), host, vm_id);
+      Console.WriteLine(sql_str);
+      MySqlCommand start_vm = new MySqlCommand(sql_str, conn);
+      return start_vm.ExecuteNonQuery();
+    }
+
+
+    public void stop_vm(Guid vm_id)
+    {
+      // stub
+    }
   }
 }

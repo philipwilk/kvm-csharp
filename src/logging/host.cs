@@ -38,11 +38,13 @@ namespace Main
 
     public host(Guid _uuid, MySqlConnection conn)
     {
+      uuid = _uuid;
       var res = sql.get_host(_uuid, conn);
       res.Read();
       friendly_name = res.GetString("FriendlyName");
       memory = get_bytes();
       is_manager = res.GetBoolean("IsManager");
+      res.Close();
       state = "online";
       threads = (ushort)Environment.ProcessorCount;
       arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString();

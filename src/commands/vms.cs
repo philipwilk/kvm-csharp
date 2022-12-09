@@ -28,6 +28,10 @@ namespace Main
           {
             return "start";
           }
+        case "stop":
+          {
+            return "stop";
+          }
         default:
           {
             return "help";
@@ -62,7 +66,12 @@ namespace Main
           }
         case "start":
           {
-            start_vm();
+            start_vm(self.uuid);
+            return;
+          }
+        case "stop":
+          {
+            stop_vm();
             return;
           }
       }
@@ -166,7 +175,7 @@ namespace Main
       int rows_written = sql.create_vm(vm);
     }
 
-    private void start_vm()
+    private void start_vm(Guid host)
     {
       sql sql = new sql("localhost", parameters![param.parameters.sqlUser], parameters[param.parameters.sqlPassword]);
 
@@ -202,11 +211,15 @@ namespace Main
       vm = new virtual_machine(_uuid, _FriendlyName, _memory, _vcpus, _arch, _template);
 
       // tell sql db is running
-
+      int affected_rows = sql.start_vm(vm.id, host);
 
       vm.start_vm("/home/philip/Documents/test-bzImage2");
+    }
 
+    private void stop_vm()
+    {
       // tell sql db is stopped
+      //sql.stop_vm(vm.id);
     }
 
     private void list_vms()
