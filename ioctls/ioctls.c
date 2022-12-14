@@ -136,7 +136,7 @@ int KVM_SET_TSS_ADDR(int vm_fd)
 int KVM_SET_IDENTITY_MAP_ADDR(int vm_fd)
 {
   __u_long req = _IOW(KVM_ID, KVM_SET_IDENTITY_MAP_ADDR_seq, unsigned long);
-  unsigned long identity_base = 0x7ffcc7b3e738 /*0xfeffc000*/;
+  unsigned long identity_base = 0xffffc000 /*0xfeffc000*/;
   return ioctl(vm_fd, req, &identity_base);
 }
 

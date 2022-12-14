@@ -7,8 +7,10 @@ namespace Main
     int kvm_fd;
     int vm_fd;
     bool is_open = false;
+    public string state { get; set; } = "offline";
     List<int> vcpus_list = new List<int> { };
     public Guid? template_id { get; set; }
+    public Guid host { get; set; }
 
     protected kvm.KvmUserspaceMemoryRegion ram_region;
 
@@ -23,6 +25,13 @@ namespace Main
 
     public virtual_machine(ulong _memory, uint _vcpus, string _name) : base(_memory, _vcpus, _name)
     {
+    }
+
+    public virtual_machine(Guid _id, string _name, ulong _memory, uint _vcpus, string _arch, string _state, Guid _host, Guid _template) : base(_id, _memory, _vcpus, _name, _arch)
+    {
+      template_id = _template;
+      state = _state;
+      host = _host;
     }
 
     public virtual_machine(Guid _id, string _name, ulong _memory, uint _vcpus, string _arch, Guid _template) : base(_id, _memory, _vcpus, _name, _arch)

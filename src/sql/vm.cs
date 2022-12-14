@@ -39,9 +39,17 @@ namespace Main
       return res;
     }
 
+    public MySqlDataReader get_running_vms(MySqlConnection conn)
+    {
+      string sql_str = String.Format("SELECT vms.*, running_vms.State, running_vms.Host FROM vms LEFT JOIN running_vms ON vms.uuid = running_vms.VmUuid");
+      MySqlCommand get_vms = new MySqlCommand(sql_str, conn);
+      MySqlDataReader res = get_vms.ExecuteReader();
+      return res;
+    }
+
     public MySqlDataReader get_vms(MySqlConnection conn)
     {
-      string sql_str = String.Format("SELECT * FROM vms");
+      string sql_str = String.Format("SELECT vms.*, running_vms.State, running_vms.Host FROM vms LEFT OUTER JOIN running_vms ON vms.uuid = running_vms.VmUuid");
       MySqlCommand get_vms = new MySqlCommand(sql_str, conn);
       MySqlDataReader res = get_vms.ExecuteReader();
       return res;

@@ -205,7 +205,16 @@ namespace Main
       ulong _memory = res.GetUInt64("Memory");
       uint _vcpus = res.GetUInt32("Vcpus");
       string _arch = res.GetString("Arch");
-      Guid _template = res.GetGuid("Template");
+      Guid _template;
+      bool temp_is_null = Convert.IsDBNull(res["Template"]);
+      if (temp_is_null)
+      {
+        _template = Guid.Empty;
+      }
+      else
+      {
+        _template = res.GetGuid("Template");
+      }
       res.Close();
 
       vm = new virtual_machine(_uuid, _FriendlyName, _memory, _vcpus, _arch, _template);
@@ -241,6 +250,8 @@ namespace Main
       ulong _memory;
       uint _vcpus;
       string _arch;
+      string _state;
+      Guid _host;
       Guid _template;
 
       while (datareader.Read())
@@ -250,6 +261,24 @@ namespace Main
         _memory = datareader.GetUInt64("Memory");
         _vcpus = datareader.GetUInt32("Vcpus");
         _arch = datareader.GetString("Arch");
+        bool state_is_null = Convert.IsDBNull(datareader["State"]);
+        if (state_is_null)
+        {
+          _state = "Defined";
+        }
+        else
+        {
+          _state = datareader.GetString("State");
+        }
+        bool host_is_null = Convert.IsDBNull(datareader["Host"]);
+        if (host_is_null)
+        {
+          _host = Guid.Empty;
+        }
+        else
+        {
+          _host = datareader.GetGuid("Host");
+        }
         bool temp_is_null = Convert.IsDBNull(datareader["Template"]);
         if (temp_is_null)
         {
@@ -259,15 +288,33 @@ namespace Main
         {
           _template = datareader.GetGuid("Template");
         }
-        datareader.Close();
 
-        vms.Add(new virtual_machine(_uuid, _FriendlyName, _memory, _vcpus, _arch, _template));
+        vms.Add(new virtual_machine(_uuid, _FriendlyName, _memory, _vcpus, _arch, _state, _host, _template));
       }
+      datareader.Close();
 
       Console.WriteLine("List of all vms:");
       foreach (var vm in vms)
       {
-        Console.WriteLine("Name: '{0}', Memory: {1}, Vcpus: {2}, uuid: {3}, template used: {4}", vm.friendly_name, vm.memory, vm.vcpus, vm.id, vm.template_id);
+        string template_text;
+        if (vm.template_id == Guid.Empty)
+        {
+          template_text = "none";
+        }
+        else
+        {
+          template_text = vm.template_id.ToString()!;
+        }
+        string host_text;
+        if (vm.host == Guid.Empty)
+        {
+          host_text = "not created";
+        }
+        else
+        {
+          host_text = vm.host.ToString()!;
+        }
+        Console.WriteLine("Name: '{0}'\n    Memory: {1}Mb, Vcpus: {2}\n    uuid: {3}, template used: {4}\n    host: {5}, state: {6}", vm.friendly_name, vm.memory / 1048576, vm.vcpus, vm.id, template_text, host_text, vm.state);
       }
     }
   }

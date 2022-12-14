@@ -10,7 +10,8 @@ namespace Main
       vdisks,
       vdevs,
       hosts,
-      help
+      help,
+      none
     }
 
     public static void execute(command action, string subaction, IDictionary<param.parameters, String> parameters, host self)
@@ -53,6 +54,12 @@ namespace Main
             x.execute(subaction, parameters, self);
             return;
           }
+        case command.none:
+          {
+
+            return;
+          }
+
       }
     }
 
@@ -90,10 +97,10 @@ namespace Main
             command_vdev x = new command_vdev(raw_args);
             return x.get_sub_action();
           }
-        default:
+        case command.help:
           {
             // https://stackoverflow.com/a/3442429
-            Console.WriteLine("Invalid command OR help called. Valid commands:");
+            Console.WriteLine("Help called. Valid commands:");
             string list_of_commands = "";
             foreach (string comm in Enum.GetNames(typeof(command)))
             {
@@ -101,6 +108,10 @@ namespace Main
             }
             Console.WriteLine(list_of_commands);
             Console.WriteLine("For help with a command, run the command with the 'help' argument");
+            return "";
+          }
+          default:
+          {
             return "";
           }
       }
@@ -133,9 +144,19 @@ namespace Main
           {
             return commands.command.hosts;
           }
-        default: return commands.command.help;
+        case "help":
+          {
+            return commands.command.help;
+          }
+        default: return commands.command.none;
       }
     }
+
+    private void wait_for_command()
+    {
+
+    }
+
     public static string comm(List<string> args)
     {
       if (args.Count > 0)
