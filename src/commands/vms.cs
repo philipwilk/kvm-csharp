@@ -236,7 +236,30 @@ namespace Main
 
     private void stop_vm()
     {
-      // tell sql db is stopped
+      sql sql = new sql("localhost", parameters![param.parameters.sqlUser], parameters[param.parameters.sqlPassword]);
+
+      string? input;
+    getvm: Console.WriteLine("Enter name or uuid of vm to stop");
+      input = Console.ReadLine();
+      Guid id;
+      MySqlDataReader res;
+      bool is_uuid = Guid.TryParse(input!.Trim(), out id);
+      if (is_uuid)
+      {
+        res = sql.get_vm(sql.conn, id);
+      }
+      else
+      {
+        res = sql.get_vm(sql.conn, input);
+        id = res.GetGuid("Uuid");
+      }
+      if (!res.HasRows)
+      {
+        Console.WriteLine("Couldn't find a vm with name or uuid {0}", input);
+        goto getvm;
+      }
+      res.Close();
+      int affected_rows = sql.stop_vm(id);
       //sql.stop_vm(vm.id);
     }
 
@@ -308,7 +331,7 @@ namespace Main
         string host_text;
         if (vm.host == Guid.Empty)
         {
-          host_text = "not created";
+          host_text = "none";
         }
         else
         {

@@ -56,7 +56,7 @@
         config = System.Text.Json.JsonSerializer.Deserialize<settings>(System.IO.File.ReadAllText(String.Format("{0}/settings.json", AppDomain.CurrentDomain.BaseDirectory)))!;
       }
 
-      sql sql = new sql("localhost", parameters[param.parameters.sqlUser], parameters[param.parameters.sqlPassword]);
+      sql sql = new sql("localhost", parameters[param.parameters.sqlUser], parameters[param.parameters.sqlPassword], true);
       sql.init_db();
 
       host self;

@@ -56,10 +56,9 @@ namespace Main
           }
         case command.none:
           {
-
+            wait_for_command(parameters, self);
             return;
           }
-
       }
     }
 
@@ -100,17 +99,20 @@ namespace Main
         case command.help:
           {
             // https://stackoverflow.com/a/3442429
-            Console.WriteLine("Help called. Valid commands:");
+            Console.WriteLine("Currently available commands:");
             string list_of_commands = "";
             foreach (string comm in Enum.GetNames(typeof(command)))
             {
-              list_of_commands += String.Format("{0}, ", comm);
+              if (comm != "none")
+              {
+                list_of_commands += String.Format("{0}, ", comm);
+              }
             }
             Console.WriteLine(list_of_commands);
-            Console.WriteLine("For help with a command, run the command with the 'help' argument");
+            Console.WriteLine("For help with a command, run the 'help' command.");
             return "";
           }
-          default:
+        default:
           {
             return "";
           }
@@ -118,43 +120,48 @@ namespace Main
     }
     public static command match_command(List<string> args)
     {
-      switch (comm(args).ToLower())
+      commands.command res;
+      if (Enum.TryParse<commands.command>(comm(args).ToLower(), true, out res))
       {
-        case "vm":
-          {
-            return commands.command.vm;
-          }
-        case "template":
-          {
-            return commands.command.template;
-          }
-        case "info":
-          {
-            return commands.command.info;
-          }
-        case "vdisks":
-          {
-            return commands.command.vdisks;
-          }
-        case "vdevs":
-          {
-            return commands.command.vdevs;
-          }
-        case "hosts":
-          {
-            return commands.command.hosts;
-          }
-        case "help":
-          {
-            return commands.command.help;
-          }
-        default: return commands.command.none;
+        return res;
+      }
+      else
+      {
+        return commands.command.none;
       }
     }
 
-    private void wait_for_command()
+    public static command match_command(string input)
     {
+      commands.command res;
+      if (Enum.TryParse<commands.command>(input.ToLower(), true, out res))
+      {
+        return res;
+      }
+      else
+      {
+        return commands.command.none;
+      }
+    }
 
+    private static void wait_for_command(IDictionary<param.parameters, String> parameters, host self)
+    {
+    label: Console.WriteLine("\nEnter an action...");
+      string input = Console.ReadLine()!.ToLower();
+      List<string> args = new List<string>(input.Split(" "));
+      commands.command action;
+      if (Enum.TryParse<commands.command>(comm(args).ToLower(), true, out action))
+      {
+        string sub_action = get_sub_command(action, args);
+        execute(action, sub_action, parameters, self);
+        goto label;
+      }
+      else
+      {
+        Console.WriteLine("Unknown command.");
+        get_sub_command(command.help, new List<string> { });
+        goto label;
+      }
     }
 
     public static string comm(List<string> args)
@@ -162,7 +169,10 @@ namespace Main
       if (args.Count > 0)
       {
         string tmp = args[0];
-        args.RemoveAt(0);
+        if (commands.match_command(tmp) != commands.command.none)
+        {
+          args.RemoveAt(0);
+        }
         return tmp;
       }
       else

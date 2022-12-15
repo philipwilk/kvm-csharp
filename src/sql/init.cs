@@ -28,13 +28,21 @@ namespace Main
       var connection_string = String.Format("server={0};user={1};port=3306;password={2}", server, userid, password);
       conn = new MySqlConnection(connection_string);
       conn.Open();
+      conn.ChangeDatabase("kvm");
+    }
 
+    public sql(string server, string userid, string password, bool init)
+    {
+      var connection_string = String.Format("server={0};user={1};port=3306;password={2}", server, userid, password);
+      conn = new MySqlConnection(connection_string);
+      conn.Open();
     }
 
     ~sql()
     {
       conn.Close();
     }
+
 
     public void init_db()
     {

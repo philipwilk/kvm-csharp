@@ -63,14 +63,16 @@ namespace Main
     public int start_vm(Guid vm_id, Guid host)
     {
       string sql_str = String.Format("INSERT INTO running_vms (Uuid, State, Host, IsOrphan, VmUuid) VALUES ('{0}', 'running', '{1}', false, '{2}');", Guid.NewGuid(), host, vm_id);
-      Console.WriteLine(sql_str);
       MySqlCommand start_vm = new MySqlCommand(sql_str, conn);
       return start_vm.ExecuteNonQuery();
     }
 
 
-    public void stop_vm(Guid vm_id)
+    public int stop_vm(Guid vm_id)
     {
+      string sql_str = String.Format("UPDATE running_vms SET State = 'Stopped' WHERE VmUuid = '{0}';", vm_id);
+      MySqlCommand stop_vm = new MySqlCommand(sql_str, conn);
+      return stop_vm.ExecuteNonQuery();
       // stub
     }
   }
