@@ -197,6 +197,7 @@ namespace Main
       if (!res.HasRows)
       {
         Console.WriteLine("Couldn't find a vm with name or uuid {0}", input);
+        res.Close();
         goto getvm;
       }
       res.Read();
@@ -251,12 +252,17 @@ namespace Main
       else
       {
         res = sql.get_vm(sql.conn, input);
-        id = res.GetGuid("Uuid");
       }
       if (!res.HasRows)
       {
         Console.WriteLine("Couldn't find a vm with name or uuid {0}", input);
+        res.Close();
         goto getvm;
+      }
+      else
+      {
+        res.Read();
+        id = res.GetGuid("Uuid");
       }
       res.Close();
       int affected_rows = sql.stop_vm(id);

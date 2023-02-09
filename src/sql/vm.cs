@@ -33,7 +33,7 @@ namespace Main
 
     public MySqlDataReader get_vm(MySqlConnection conn, string name)
     {
-      string sql_str = String.Format("SELECT * FROM vm_templates WHERE FriendlyName = '{0}'", name);
+      string sql_str = String.Format("SELECT * FROM vms WHERE FriendlyName = '{0}'", name);
       MySqlCommand get_vm = new MySqlCommand(sql_str, conn);
       MySqlDataReader res = get_vm.ExecuteReader();
       return res;

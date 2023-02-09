@@ -60,7 +60,7 @@
       sql.init_db();
 
       host self;
-      if (config.self_uuid != Guid.Empty)
+      if (config.self_uuid != Guid.Empty && sql.host_table_exists(config.self_uuid, sql.conn))
       {
         self = new host(config.self_uuid, sql.conn);
       }

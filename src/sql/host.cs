@@ -11,5 +11,12 @@ namespace Main
       MySqlDataReader res = get_host.ExecuteReader();
       return res;
     }
+    public static bool host_table_exists(Guid uuid, MySqlConnection conn)
+    {
+      MySqlDataReader res = sql.get_host(uuid, conn);
+      bool val = res.Read();
+      res.Close();
+      return val;
+    }
   }
 }
